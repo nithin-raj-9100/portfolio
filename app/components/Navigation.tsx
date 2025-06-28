@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, Monitor } from "lucide-react";
+import { useTheme } from "./ThemeProvider";
 
 const navigationItems = [
   { id: "profile", label: "Profile" },
@@ -15,19 +16,9 @@ const navigationItems = [
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("profile");
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    // Check for saved theme preference or default to system preference
-    const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,18 +53,16 @@ export default function Navigation() {
     setIsMenuOpen(false);
   };
 
-  const toggleTheme = () => {
-    const newTheme = !isDarkMode;
-    setIsDarkMode(newTheme);
-    
-    if (newTheme) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+  const getThemeIcon = () => {
+    if (theme === "system") return <Monitor className="w-5 h-5" />;
+    return resolvedTheme === "dark" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />;
   };
+
+  const themeOptions = [
+    { value: "light", label: "Light", icon: Sun },
+    { value: "dark", label: "Dark", icon: Moon },
+    { value: "system", label: "System", icon: Monitor },
+  ];
 
   return (
     <motion.nav
@@ -127,69 +116,123 @@ export default function Navigation() {
               </motion.button>
             ))}
             
-            <motion.button
-              onClick={toggleTheme}
-              className="ml-4 p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <AnimatePresence mode="wait">
-                {isDarkMode ? (
+            {/* Theme Toggle */}
+            <div className="relative ml-4">
+              <motion.button
+                onClick={() => setShowThemeMenu(!showThemeMenu)}
+                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <AnimatePresence mode="wait">
                   <motion.div
-                    key="sun"
+                    key={theme}
                     initial={{ rotate: -90, opacity: 0 }}
                     animate={{ rotate: 0, opacity: 1 }}
                     exit={{ rotate: 90, opacity: 0 }}
                     transition={{ duration: 0.2 }}
+                    className="text-gray-700 dark:text-gray-300"
                   >
-                    <Sun className="w-5 h-5 text-yellow-500" />
+                    {getThemeIcon()}
                   </motion.div>
-                ) : (
+                </AnimatePresence>
+              </motion.button>
+
+              <AnimatePresence>
+                {showThemeMenu && (
                   <motion.div
-                    key="moon"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
                     transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
+                    onMouseLeave={() => setShowThemeMenu(false)}
                   >
-                    <Moon className="w-5 h-5 text-gray-700" />
+                    {themeOptions.map((option) => {
+                      const Icon = option.icon;
+                      return (
+                        <motion.button
+                          key={option.value}
+                          onClick={() => {
+                            setTheme(option.value as any);
+                            setShowThemeMenu(false);
+                          }}
+                          className={`w-full flex items-center px-3 py-2 text-sm transition-colors ${
+                            theme === option.value
+                              ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          }`}
+                          whileHover={{ x: 4 }}
+                        >
+                          <Icon className="w-4 h-4 mr-2" />
+                          {option.label}
+                        </motion.button>
+                      );
+                    })}
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.button>
+            </div>
           </div>
 
           <div className="md:hidden flex items-center space-x-2">
-            <motion.button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <AnimatePresence mode="wait">
-                {isDarkMode ? (
+            {/* Mobile Theme Toggle */}
+            <div className="relative">
+              <motion.button
+                onClick={() => setShowThemeMenu(!showThemeMenu)}
+                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <AnimatePresence mode="wait">
                   <motion.div
-                    key="sun"
+                    key={theme}
                     initial={{ rotate: -90, opacity: 0 }}
                     animate={{ rotate: 0, opacity: 1 }}
                     exit={{ rotate: 90, opacity: 0 }}
                     transition={{ duration: 0.2 }}
+                    className="text-gray-700 dark:text-gray-300"
                   >
-                    <Sun className="w-5 h-5 text-yellow-500" />
+                    {getThemeIcon()}
                   </motion.div>
-                ) : (
+                </AnimatePresence>
+              </motion.button>
+
+              <AnimatePresence>
+                {showThemeMenu && (
                   <motion.div
-                    key="moon"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
                     transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
+                    onMouseLeave={() => setShowThemeMenu(false)}
                   >
-                    <Moon className="w-5 h-5 text-gray-700" />
+                    {themeOptions.map((option) => {
+                      const Icon = option.icon;
+                      return (
+                        <motion.button
+                          key={option.value}
+                          onClick={() => {
+                            setTheme(option.value as any);
+                            setShowThemeMenu(false);
+                          }}
+                          className={`w-full flex items-center px-3 py-2 text-sm transition-colors ${
+                            theme === option.value
+                              ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          }`}
+                          whileHover={{ x: 4 }}
+                        >
+                          <Icon className="w-4 h-4 mr-2" />
+                          {option.label}
+                        </motion.button>
+                      );
+                    })}
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.button>
+            </div>
             
             <motion.button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
