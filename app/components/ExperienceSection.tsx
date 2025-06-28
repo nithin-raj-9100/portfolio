@@ -1,114 +1,220 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import { GraduationCap, Briefcase, Calendar, MapPin, Award } from "lucide-react";
 import { profileData } from "../data/profile";
 
 export default function ExperienceSection() {
   const { education, experience } = profileData;
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.3,
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 50, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const timelineVariants = {
+    hidden: { scaleY: 0 },
+    visible: {
+      scaleY: 1,
+      transition: {
+        duration: 1,
+        ease: "easeOut"
+      }
+    }
+  };
 
   return (
-    <section id="experience" className="py-20 bg-white dark:bg-gray-900">
+    <section id="experience" className="py-20 bg-white dark:bg-gray-900" ref={ref}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        <motion.div
+          className="text-center mb-16"
+          variants={containerVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+        >
+          <motion.h2
+            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
+            variants={itemVariants}
+          >
             Experience & Education
-          </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          </motion.h2>
+          <motion.p
+            className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
+            variants={itemVariants}
+          >
             My academic journey and professional experience in web development
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         <div className="relative">
-          <div className="absolute left-4 md:left-1/2 transform md:-translate-x-1/2 w-1 h-full bg-blue-200 dark:bg-blue-800"></div>
+          {/* Timeline line */}
+          <motion.div
+            className="absolute left-4 md:left-1/2 transform md:-translate-x-1/2 w-1 h-full bg-gradient-to-b from-blue-500 to-purple-500 origin-top"
+            variants={timelineVariants}
+            initial="hidden"
+            animate={inView ? "visible" : "hidden"}
+          />
 
-          <div className="relative flex flex-col md:flex-row items-start md:items-center mb-12">
+          {/* Education */}
+          <motion.div
+            className="relative flex flex-col md:flex-row items-start md:items-center mb-16"
+            variants={itemVariants}
+            initial="hidden"
+            animate={inView ? "visible" : "hidden"}
+          >
             <div className="flex-1 md:pr-8 md:text-right order-2 md:order-1">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg shadow-lg">
+              <motion.div
+                className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-200/50 dark:border-blue-700/50"
+                whileHover={{ scale: 1.02, y: -5 }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <motion.div
+                    className="p-2 bg-blue-500 rounded-lg"
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <GraduationCap className="w-5 h-5 text-white" />
+                  </motion.div>
+                  <span className="text-sm text-blue-600 dark:text-blue-400 font-medium bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full">
+                    Education
+                  </span>
+                </div>
+                
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                   {education.degree} in {education.field}
                 </h3>
-                <h4 className="text-lg text-blue-600 dark:text-blue-400 font-medium mb-2">
+                <h4 className="text-lg text-blue-600 dark:text-blue-400 font-medium mb-3">
                   {education.institution}
                 </h4>
-                <p className="text-gray-600 dark:text-gray-300 mb-2">
-                  {education.location}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                  {education.duration}
-                </p>
-                <div className="inline-block bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
-                  CGPA: {education.cgpa}
+                
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-gray-600 dark:text-gray-300">
+                    <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="text-sm">{education.location}</span>
+                  </div>
+                  <div className="flex items-center text-gray-600 dark:text-gray-300">
+                    <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="text-sm">{education.duration}</span>
+                  </div>
                 </div>
-              </div>
+                
+                <div className="flex items-center">
+                  <Award className="w-4 h-4 mr-2 text-green-500" />
+                  <span className="inline-block bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-3 py-1 rounded-full text-sm font-medium">
+                    CGPA: {education.cgpa}
+                  </span>
+                </div>
+              </motion.div>
             </div>
 
-            <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 w-8 h-8 bg-blue-600 border-4 border-white dark:border-gray-900 rounded-full flex items-center justify-center order-1 md:order-2">
-              <svg
-                className="w-4 h-4 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.75 2.524z" />
-              </svg>
-            </div>
+            <motion.div
+              className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 border-4 border-white dark:border-gray-900 rounded-full flex items-center justify-center order-1 md:order-2 shadow-lg"
+              whileHover={{ scale: 1.2 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <GraduationCap className="w-4 h-4 text-white" />
+            </motion.div>
 
             <div className="flex-1 md:pl-8 order-3 md:order-3"></div>
-          </div>
+          </motion.div>
 
-          <div className="relative flex flex-col md:flex-row items-start md:items-center">
+          {/* Experience */}
+          <motion.div
+            className="relative flex flex-col md:flex-row items-start md:items-center"
+            variants={itemVariants}
+            initial="hidden"
+            animate={inView ? "visible" : "hidden"}
+            transition={{ delay: 0.3 }}
+          >
             <div className="flex-1 md:pr-8 order-2 md:order-1"></div>
 
-            <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 w-8 h-8 bg-green-600 border-4 border-white dark:border-gray-900 rounded-full flex items-center justify-center order-1 md:order-2">
-              <svg
-                className="w-4 h-4 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z"
-                  clipRule="evenodd"
-                />
-                <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
-              </svg>
-            </div>
+            <motion.div
+              className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 border-4 border-white dark:border-gray-900 rounded-full flex items-center justify-center order-1 md:order-2 shadow-lg"
+              whileHover={{ scale: 1.2 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <Briefcase className="w-4 h-4 text-white" />
+            </motion.div>
 
             <div className="flex-1 md:pl-8 order-3 md:order-3">
-              <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg shadow-lg">
+              <motion.div
+                className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-green-200/50 dark:border-green-700/50"
+                whileHover={{ scale: 1.02, y: -5 }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <motion.div
+                    className="p-2 bg-green-500 rounded-lg"
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Briefcase className="w-5 h-5 text-white" />
+                  </motion.div>
+                  <span className="text-sm text-green-600 dark:text-green-400 font-medium bg-green-100 dark:bg-green-900/30 px-3 py-1 rounded-full">
+                    Experience
+                  </span>
+                </div>
+                
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                   {experience.role}
                 </h3>
-                <h4 className="text-lg text-green-600 dark:text-green-400 font-medium mb-2">
+                <h4 className="text-lg text-green-600 dark:text-green-400 font-medium mb-3">
                   {experience.company}
                 </h4>
-                <p className="text-gray-600 dark:text-gray-300 mb-2">
-                  {experience.type}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  {experience.duration}
-                </p>
+                
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-gray-600 dark:text-gray-300">
+                    <Briefcase className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="text-sm">{experience.type}</span>
+                  </div>
+                  <div className="flex items-center text-gray-600 dark:text-gray-300">
+                    <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                    <span className="text-sm">{experience.duration}</span>
+                  </div>
+                </div>
 
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {experience.description.map((item, index) => (
-                    <li
+                    <motion.li
                       key={index}
-                      className="flex items-start space-x-2 text-sm text-gray-600 dark:text-gray-300"
+                      className="flex items-start space-x-3 text-sm text-gray-600 dark:text-gray-300"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                      transition={{ delay: 0.5 + index * 0.1 }}
                     >
-                      <svg
-                        className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                      <motion.div
+                        className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"
+                        whileHover={{ scale: 1.5 }}
+                      />
                       <span>{item}</span>
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

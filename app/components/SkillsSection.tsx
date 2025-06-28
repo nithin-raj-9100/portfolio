@@ -1,7 +1,16 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import { Code, Palette, Server, Database, Settings, CheckCircle } from "lucide-react";
 import { profileData } from "../data/profile";
 
 export default function SkillsSection() {
   const { skills } = profileData;
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
 
   const getSkillColor = (category: string) => {
     const colors: { [key: string]: string } = {
@@ -18,159 +27,241 @@ export default function SkillsSection() {
   const getSkillIcon = (category: string) => {
     switch (category) {
       case "Languages":
-        return (
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-        );
+        return <Code className="w-6 h-6" />;
       case "Frontend":
-        return (
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h12a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm6 2a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-        );
+        return <Palette className="w-6 h-6" />;
       case "Backend":
-        return (
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z"
-              clipRule="evenodd"
-            />
-            <path d="M15 7h1a2 2 0 012 2v5.5a1.5 1.5 0 01-3 0V9a1 1 0 00-1-1h-1v4.5a1.5 1.5 0 01-3 0V8a1 1 0 011-1z" />
-          </svg>
-        );
+        return <Server className="w-6 h-6" />;
       case "Databases":
-        return (
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z" />
-            <path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z" />
-            <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z" />
-          </svg>
-        );
+        return <Database className="w-6 h-6" />;
       case "DevOps & Tools":
-        return (
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-              clipRule="evenodd"
-            />
-          </svg>
-        );
+        return <Settings className="w-6 h-6" />;
       case "Core Concepts":
-        return (
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        );
+        return <CheckCircle className="w-6 h-6" />;
       default:
-        return (
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clipRule="evenodd"
-            />
-          </svg>
-        );
+        return <Code className="w-6 h-6" />;
+    }
+  };
+
+  const getProficiencyLevel = (category: string) => {
+    const levels: { [key: string]: { level: string; percentage: number } } = {
+      Languages: { level: "Advanced", percentage: 90 },
+      Frontend: { level: "Expert", percentage: 95 },
+      Backend: { level: "Advanced", percentage: 85 },
+      Databases: { level: "Intermediate", percentage: 75 },
+      "DevOps & Tools": { level: "Intermediate", percentage: 70 },
+      "Core Concepts": { level: "Advanced", percentage: 88 },
+    };
+    return levels[category] || { level: "Intermediate", percentage: 70 };
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.3,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 50, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
     }
   };
 
   return (
-    <section id="skills" className="py-20 bg-white dark:bg-gray-900">
+    <section id="skills" className="py-20 bg-white dark:bg-gray-900" ref={ref}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        <motion.div
+          className="text-center mb-16"
+          variants={containerVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+        >
+          <motion.h2
+            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
+            variants={itemVariants}
+          >
             Technical Skills
-          </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            A comprehensive overview of my technical expertise and the tools I
-            work with
-          </p>
-        </div>
+          </motion.h2>
+          <motion.p
+            className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
+            variants={itemVariants}
+          >
+            A comprehensive overview of my technical expertise and the tools I work with
+          </motion.p>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {skills.map((skillCategory, index) => (
-            <div
-              key={index}
-              className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <div className="flex items-center mb-6">
-                <div
-                  className={`p-3 rounded-lg bg-gradient-to-r ${getSkillColor(
-                    skillCategory.category
-                  )} text-white mr-4`}
-                >
-                  {getSkillIcon(skillCategory.category)}
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {skillCategory.category}
-                </h3>
-              </div>
-
-              <div className="space-y-3">
-                {skillCategory.skills.map((skill, skillIndex) => (
-                  <div
-                    key={skillIndex}
-                    className="flex items-center justify-between"
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+        >
+          {skills.map((skillCategory, index) => {
+            const proficiency = getProficiencyLevel(skillCategory.category);
+            
+            return (
+              <motion.div
+                key={index}
+                className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-200 dark:border-gray-700 group"
+                variants={itemVariants}
+                whileHover={{ y: -10, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                {/* Header */}
+                <div className="flex items-center mb-6">
+                  <motion.div
+                    className={`p-3 rounded-xl bg-gradient-to-r ${getSkillColor(skillCategory.category)} text-white mr-4 shadow-lg`}
+                    whileHover={{ rotate: 360, scale: 1.1 }}
+                    transition={{ duration: 0.5 }}
                   >
-                    <span className="text-gray-700 dark:text-gray-300 font-medium">
-                      {skill}
+                    {getSkillIcon(skillCategory.category)}
+                  </motion.div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                      {skillCategory.category}
+                    </h3>
+                    <span className={`text-xs font-medium px-2 py-1 rounded-full bg-gradient-to-r ${getSkillColor(skillCategory.category)} text-white`}>
+                      {proficiency.level}
                     </span>
-                    <div className="flex space-x-1">
-                      {[1, 2, 3, 4, 5].map((level) => (
-                        <div
-                          key={level}
-                          className={`w-2 h-2 rounded-full ${
-                            level <= 4 + Math.random()
-                              ? `bg-gradient-to-r ${getSkillColor(
-                                  skillCategory.category
-                                )}`
-                              : "bg-gray-300 dark:bg-gray-600"
-                          }`}
-                        />
-                      ))}
-                    </div>
                   </div>
-                ))}
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500 dark:text-gray-400">
-                    {skillCategory.skills.length} Skills
-                  </span>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getSkillColor(
-                      skillCategory.category
-                    )} text-white`}
-                  >
-                    {skillCategory.category === "Languages"
-                      ? "Advanced"
-                      : skillCategory.category === "Frontend"
-                      ? "Expert"
-                      : skillCategory.category === "Backend"
-                      ? "Advanced"
-                      : skillCategory.category === "Databases"
-                      ? "Intermediate"
-                      : skillCategory.category === "DevOps & Tools"
-                      ? "Intermediate"
-                      : "Advanced"}
-                  </span>
                 </div>
+
+                {/* Proficiency Bar */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      Proficiency
+                    </span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {proficiency.percentage}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <motion.div
+                      className={`h-2 rounded-full bg-gradient-to-r ${getSkillColor(skillCategory.category)}`}
+                      initial={{ width: 0 }}
+                      animate={inView ? { width: `${proficiency.percentage}%` } : { width: 0 }}
+                      transition={{ duration: 1.5, delay: index * 0.2 }}
+                    />
+                  </div>
+                </div>
+
+                {/* Skills List */}
+                <div className="space-y-3 mb-6">
+                  {skillCategory.skills.map((skill, skillIndex) => (
+                    <motion.div
+                      key={skillIndex}
+                      className="flex items-center justify-between p-2 rounded-lg hover:bg-white dark:hover:bg-gray-700 transition-colors"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                      transition={{ delay: 0.5 + skillIndex * 0.1 }}
+                      whileHover={{ x: 5 }}
+                    >
+                      <span className="text-gray-700 dark:text-gray-300 font-medium text-sm">
+                        {skill}
+                      </span>
+                      <motion.div
+                        className="flex space-x-1"
+                        initial={{ scale: 0 }}
+                        animate={inView ? { scale: 1 } : { scale: 0 }}
+                        transition={{ delay: 0.7 + skillIndex * 0.1 }}
+                      >
+                        {[1, 2, 3, 4, 5].map((level) => (
+                          <motion.div
+                            key={level}
+                            className={`w-2 h-2 rounded-full ${
+                              level <= 4 + Math.random()
+                                ? `bg-gradient-to-r ${getSkillColor(skillCategory.category)}`
+                                : "bg-gray-300 dark:bg-gray-600"
+                            }`}
+                            whileHover={{ scale: 1.3 }}
+                            transition={{ type: "spring", stiffness: 400 }}
+                          />
+                        ))}
+                      </motion.div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Footer Stats */}
+                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500 dark:text-gray-400 flex items-center">
+                      <CheckCircle className="w-4 h-4 mr-1 text-green-500" />
+                      {skillCategory.skills.length} Skills
+                    </span>
+                    <motion.div
+                      className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getSkillColor(skillCategory.category)} text-white shadow-lg`}
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ type: "spring", stiffness: 400 }}
+                    >
+                      {proficiency.level}
+                    </motion.div>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* Skills Summary */}
+        <motion.div
+          className="mt-16 text-center"
+          variants={itemVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          transition={{ delay: 1 }}
+        >
+          <motion.div
+            className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl p-8 border border-blue-200/50 dark:border-blue-700/50"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              Continuous Learning
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
+              I'm constantly expanding my skill set and staying up-to-date with the latest technologies and best practices in web development.
+            </p>
+            <div className="flex items-center justify-center space-x-8 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center">
+                <motion.div
+                  className="w-3 h-3 bg-green-500 rounded-full mr-2"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                <span>Always Learning</span>
+              </div>
+              <div className="flex items-center">
+                <motion.div
+                  className="w-3 h-3 bg-blue-500 rounded-full mr-2"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                />
+                <span>Industry Ready</span>
+              </div>
+              <div className="flex items-center">
+                <motion.div
+                  className="w-3 h-3 bg-purple-500 rounded-full mr-2"
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                />
+                <span>Best Practices</span>
               </div>
             </div>
-          ))}
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );
