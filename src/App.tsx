@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { usePostHog } from "@posthog/react";
 import { 
   Mail, 
   Phone, 
@@ -251,6 +252,8 @@ const skillCategories = [
 ];
 
 function App() {
+  const posthog = usePostHog();
+
   // Navigation active state
   const [activeTab, setActiveTab] = useState<string>("overview");
 
@@ -334,16 +337,19 @@ function App() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Handle Theme Change
   const handleThemeChange = (newTheme: Theme) => {
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
     setIsThemeMenuOpen(false);
+    posthog?.capture("theme_changed", { theme: newTheme });
     showToast(`Theme set to ${newTheme}`);
   };
 
   // Copy to clipboard helper
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
+    posthog?.capture("contact_info_copied", { field: label });
     showToast(`${label} copied`);
   };
 
@@ -381,6 +387,7 @@ function App() {
     setTimeout(() => {
       setIsSubmitting(false);
       setIsContactModalOpen(false);
+      posthog?.capture("contact_form_submitted");
       setContactName("");
       setContactEmail("");
       setContactMessage("");
@@ -437,7 +444,10 @@ function App() {
                 <a
                   key={tab.id}
                   href={`#${tab.id}`}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    posthog?.capture("nav_link_clicked", { section: tab.id });
+                  }}
                   className={`px-3 py-1.5 rounded-sm text-sm font-medium transition-all duration-150 relative ${
                     activeTab === tab.id
                       ? "text-gray-1000 bg-gray-100"
@@ -497,26 +507,28 @@ function App() {
             </div>
 
             {/* Contact quick actions */}
-            <a 
-              href="https://github.com/nithin-raj-9100" 
-              target="_blank" 
+            <a
+              href="https://github.com/nithin-raj-9100"
+              target="_blank"
               rel="noreferrer"
+              onClick={() => posthog?.capture("github_profile_clicked", { source: "header" })}
               className="geist-focus border border-gray-300 hover:border-gray-500 bg-background-100 text-gray-900 hover:text-gray-1000 h-[36px] w-[36px] rounded-sm flex items-center justify-center transition-colors cursor-pointer shadow-raised"
               title="GitHub"
             >
               <GithubIcon size={16} />
             </a>
-            <a 
-              href="https://www.linkedin.com/in/nithin-raj-32311222b/" 
-              target="_blank" 
+            <a
+              href="https://www.linkedin.com/in/nithin-raj-32311222b/"
+              target="_blank"
               rel="noreferrer"
+              onClick={() => posthog?.capture("linkedin_profile_clicked", { source: "header" })}
               className="geist-focus border border-gray-300 hover:border-gray-500 bg-background-100 text-gray-900 hover:text-gray-1000 h-[36px] w-[36px] rounded-sm flex items-center justify-center transition-colors cursor-pointer shadow-raised"
               title="LinkedIn"
             >
               <LinkedinIcon size={16} />
             </a>
             <button
-              onClick={() => setIsContactModalOpen(true)}
+              onClick={() => { setIsContactModalOpen(true); posthog?.capture("contact_modal_opened", { source: "header" }); }}
               className="geist-focus text-sm font-medium bg-gray-1000 hover:bg-gray-800 text-background-100 px-3.5 h-[36px] rounded-sm flex items-center gap-1.5 transition-all duration-150 cursor-pointer shadow-raised active:bg-gray-900"
             >
               <Mail size={14} />
@@ -566,23 +578,24 @@ function App() {
           {/* Hero Buttons */}
           <div className="flex flex-wrap items-center gap-3.5 mt-2">
             <button
-              onClick={() => setIsContactModalOpen(true)}
+              onClick={() => { setIsContactModalOpen(true); posthog?.capture("hire_me_clicked"); posthog?.capture("contact_modal_opened", { source: "hero" }); }}
               className="geist-focus bg-gray-1000 text-background-100 rounded-sm h-11 px-5 font-semibold label-14 shadow-raised hover:bg-gray-800 active:bg-gray-900 cursor-pointer flex items-center gap-2 transition-all"
             >
               Hire Me <ArrowRight size={16} />
             </button>
-            
+
             <a
               href="https://github.com/nithin-raj-9100"
               target="_blank"
               rel="noreferrer"
+              onClick={() => posthog?.capture("github_profile_clicked", { source: "hero" })}
               className="geist-focus bg-background-100 hover:bg-gray-100 text-gray-1000 border border-gray-400 rounded-sm h-11 px-5 font-semibold label-14 flex items-center gap-2 transition-all cursor-pointer shadow-raised"
             >
               <GithubIcon size={16} /> GitHub Profile
             </a>
 
             <button
-              onClick={() => setIsShareModalOpen(true)}
+              onClick={() => { setIsShareModalOpen(true); posthog?.capture("share_profile_clicked"); }}
               className="geist-focus text-gray-900 hover:text-gray-1000 rounded-sm h-11 px-4 font-semibold label-14 flex items-center gap-2 transition-all cursor-pointer hover:bg-gray-100"
             >
               <Share2 size={15} /> Share Profile
@@ -610,7 +623,7 @@ function App() {
                 return (
                   <button
                     key={job.id}
-                    onClick={() => setExpandedJob(job.id)}
+                    onClick={() => { setExpandedJob(job.id); posthog?.capture("experience_job_expanded", { company: job.company, role: job.role }); }}
                     className={`text-left p-4 rounded-sm border transition-all duration-200 flex gap-4 cursor-pointer geist-focus ${
                       isActive 
                         ? "bg-background-100 border-gray-1000 shadow-raised" 
@@ -686,6 +699,7 @@ function App() {
                           href={job.certificateUrl}
                           target="_blank"
                           rel="noreferrer"
+                          onClick={() => posthog?.capture("certificate_viewed", { company: job.company })}
                           className="geist-focus inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-1000 border border-gray-300 rounded-sm px-4 py-2 text-xs font-semibold shadow-raised transition-colors cursor-pointer"
                         >
                           <ExternalLink size={12} /> View Internship Certificate
@@ -877,6 +891,7 @@ function App() {
                         href={project.liveUrl}
                         target="_blank"
                         rel="noreferrer"
+                        onClick={() => posthog?.capture("project_demo_clicked", { project: project.title })}
                         className="geist-focus flex-grow bg-gray-1000 text-background-100 rounded-sm h-[38px] text-center font-medium label-13 flex items-center justify-center gap-1.5 hover:bg-gray-800 transition-all cursor-pointer shadow-raised active:bg-gray-900"
                       >
                         <Globe size={14} /> Live Demo
@@ -885,6 +900,7 @@ function App() {
                         href={project.githubUrl}
                         target="_blank"
                         rel="noreferrer"
+                        onClick={() => posthog?.capture("project_github_clicked", { project: project.title })}
                         className="geist-focus bg-background-100 text-gray-1000 border border-gray-400 rounded-sm h-[38px] px-4 font-medium label-13 flex items-center justify-center gap-1.5 hover:bg-gray-100 transition-all cursor-pointer shadow-raised"
                       >
                         <GithubIcon size={14} /> GitHub
@@ -907,6 +923,7 @@ function App() {
               href="https://turborepo.hashnode.dev/build-and-deploy-a-full-stack-monorepo-turborepo-vitereact-fastify-prisma-on-vercel-serverless" 
               target="_blank" 
               rel="noreferrer"
+              onClick={() => posthog?.capture("blog_article_read_clicked", { source: "text_link" })}
               className="geist-focus text-sm font-semibold text-blue-700 hover:underline flex items-center gap-1 cursor-pointer"
             >
               Read full post on Hashnode <ExternalLink size={14} />
@@ -948,10 +965,11 @@ function App() {
               </div>
 
               <div className="mt-2">
-                <a 
-                  href="https://turborepo.hashnode.dev/build-and-deploy-a-full-stack-monorepo-turborepo-vitereact-fastify-prisma-on-vercel-serverless" 
-                  target="_blank" 
+                <a
+                  href="https://turborepo.hashnode.dev/build-and-deploy-a-full-stack-monorepo-turborepo-vitereact-fastify-prisma-on-vercel-serverless"
+                  target="_blank"
                   rel="noreferrer"
+                  onClick={() => posthog?.capture("blog_article_read_clicked", { source: "button" })}
                   className="geist-focus inline-flex items-center gap-2 bg-gray-1000 hover:bg-gray-800 text-background-100 label-13 font-semibold px-4 py-2.5 rounded-sm transition-all shadow-raised active:bg-gray-900 cursor-pointer"
                 >
                   <BookOpen size={15} /> Read Guide
@@ -1002,7 +1020,7 @@ function App() {
 
           <div className="flex flex-wrap justify-center items-center gap-3.5 mt-2 relative z-10">
             <button
-              onClick={() => setIsContactModalOpen(true)}
+              onClick={() => { setIsContactModalOpen(true); posthog?.capture("contact_modal_opened", { source: "cta_section" }); }}
               className="geist-focus bg-background-100 text-gray-1000 hover:bg-gray-100 active:bg-gray-200 rounded-sm h-11 px-6 font-semibold label-14 cursor-pointer shadow-raised flex items-center gap-2"
             >
               <Mail size={16} /> Contact Me
@@ -1057,18 +1075,20 @@ function App() {
             
             {/* Quick social links */}
             <div className="flex items-center gap-4 label-13 text-gray-900 font-semibold">
-              <a 
-                href="https://github.com/nithin-raj-9100" 
-                target="_blank" 
-                rel="noreferrer" 
+              <a
+                href="https://github.com/nithin-raj-9100"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => posthog?.capture("github_profile_clicked", { source: "footer" })}
                 className="hover:text-blue-700 hover:underline inline-flex items-center gap-1.5"
               >
                 <GithubIcon size={14} /> GitHub
               </a>
-              <a 
-                href="https://www.linkedin.com/in/nithin-raj-32311222b/" 
-                target="_blank" 
-                rel="noreferrer" 
+              <a
+                href="https://www.linkedin.com/in/nithin-raj-32311222b/"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => posthog?.capture("linkedin_profile_clicked", { source: "footer" })}
                 className="hover:text-blue-700 hover:underline inline-flex items-center gap-1.5"
               >
                 <LinkedinIcon size={14} /> LinkedIn
@@ -1139,7 +1159,7 @@ function App() {
                         className="bg-background-200 border border-gray-300 text-gray-1000 rounded-sm text-xs font-mono px-3 py-1.5 flex-grow"
                       />
                       <button
-                        onClick={() => handleCopy(item.value, item.label)}
+                        onClick={() => { handleCopy(item.value, item.label); posthog?.capture("profile_link_copied", { label: item.label }); }}
                         className="geist-focus bg-gray-100 hover:bg-gray-200 text-gray-1000 border border-gray-400 rounded-sm px-3 h-[30px] label-12 font-medium cursor-pointer"
                       >
                         Copy
