@@ -374,8 +374,8 @@ function App() {
     return groups;
   }, [filteredSkills]);
 
-  // Handle Form Submit
-  const handleFormSubmit = (e: React.FormEvent) => {
+  // Handle Form Submit (Fully functional production form via FormSubmit API)
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!contactName || !contactEmail || !contactMessage) {
       showToast("Fill in all fields");
@@ -383,16 +383,38 @@ function App() {
     }
     
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
+    
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/nithinraj9100@gmail.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          name: contactName,
+          email: contactEmail,
+          message: contactMessage,
+          _subject: `New Portfolio Message from ${contactName}`
+        })
+      });
+
+      if (response.ok) {
+        setIsContactModalOpen(false);
+        posthog?.capture("contact_form_submitted", { name: contactName, email: contactEmail });
+        setContactName("");
+        setContactEmail("");
+        setContactMessage("");
+        showToast("Message sent");
+      } else {
+        throw new Error("Submission failed");
+      }
+    } catch {
+      posthog?.capture("contact_form_failed");
+      showToast("Error sending message");
+    } finally {
       setIsSubmitting(false);
-      setIsContactModalOpen(false);
-      posthog?.capture("contact_form_submitted");
-      setContactName("");
-      setContactEmail("");
-      setContactMessage("");
-      showToast("Message sent");
-    }, 1200);
+    }
   };
 
   return (
