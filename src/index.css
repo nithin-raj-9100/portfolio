@@ -393,6 +393,11 @@ body {
   box-shadow: 0 0 0 2px var(--background-100), 0 0 0 4px var(--blue-700);
 }
 
+.geist-focus-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--background-100), 0 0 0 4px var(--blue-700);
+}
+
 /* Utility styles for typography based on design tokens */
 .heading-72 {
   font-size: 72px;

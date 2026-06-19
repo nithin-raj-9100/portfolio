@@ -18,7 +18,8 @@ import {
   Sun,
   Moon,
   Monitor,
-  Menu
+  Menu,
+  Search
 } from "lucide-react";
 
 // Brand icons as inline custom SVGs due to Lucide v1.x removal
@@ -267,6 +268,7 @@ function App() {
   });
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
   const themeMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   // Skills filter state
   const [selectedSkillCategory, setSelectedSkillCategory] = useState<string>("all");
@@ -330,11 +332,14 @@ function App() {
     return () => mediaQuery.removeEventListener("change", listener);
   }, [theme]);
 
-  // Click outside listener for theme menu dropdown
+  // Click outside listener for dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (themeMenuRef.current && !themeMenuRef.current.contains(event.target as Node)) {
         setIsThemeMenuOpen(false);
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -449,7 +454,7 @@ function App() {
       </div>
 
       {/* STICKY HEADER */}
-      <header className="sticky top-0 bg-background-100/80 backdrop-blur-md border-b border-gray-200 z-40 transition-all duration-200">
+      <header className="sticky top-0 bg-background-100/80 backdrop-blur-md border-b border-gray-200 z-40 transition-all duration-200 relative" ref={mobileMenuRef}>
         <div className="max-w-300 mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
             {/* Logo / Personal Brand */}
@@ -809,28 +814,35 @@ function App() {
 
         {/* TECHNICAL SKILLS SECTION */}
         <section id="skills" className="scroll-mt-28 flex flex-col gap-6 pt-4 border-t border-gray-200">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="flex flex-row flex-wrap items-end justify-between gap-4">
             <div>
               <div className="label-12-mono font-medium tracking-wider text-blue-700 uppercase mb-1">Knowledge Base</div>
               <h2 className="heading-32 tracking-tight text-gray-1000 font-bold">Technical Skills</h2>
             </div>
 
             {/* Skill Search Field */}
-            <div className="relative max-w-xs w-full">
+            <div className="relative w-full sm:max-w-xs">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-600">
+                <Search size={15} />
+              </span>
               <input
                 type="text"
                 placeholder="Search skills..."
                 value={skillSearch}
                 onChange={(e) => setSkillSearch(e.target.value)}
-                className="geist-focus w-full bg-background-100 text-gray-1000 border border-gray-300 rounded-sm px-3.5 h-9 label-14 placeholder:text-gray-600 transition-all focus:border-gray-1000"
+                className="geist-focus-input w-full bg-background-100 text-gray-1000 border border-gray-300 rounded-sm pl-10 pr-8 h-10 label-14 placeholder:text-gray-600 transition-all focus:border-gray-1000 shadow-raised"
               />
-              {skillSearch && (
+              {skillSearch ? (
                 <button 
                   onClick={() => setSkillSearch("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-1000"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-1000 cursor-pointer p-0.5 rounded-sm hover:bg-gray-100"
                 >
                   <X size={14} />
                 </button>
+              ) : (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-gray-600 bg-background-200 border border-gray-300 px-1.5 py-0.5 rounded-sm select-none hidden sm:inline shadow-raised">
+                  ⌘K
+                </span>
               )}
             </div>
           </div>
@@ -1028,10 +1040,10 @@ function App() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-100 rounded-full blur-2xl pointer-events-none opacity-40"></div>
             
             <div className="flex flex-col gap-4 relative z-10 max-w-212.5">
-              <div className="flex items-center gap-2">
-                <span className="label-12-mono text-purple-1000 bg-purple-100 border border-purple-400 px-2.5 py-0.5 rounded-full font-semibold uppercase">Featured Guide</span>
-                <span className="text-gray-400">•</span>
-                <span className="label-12 text-gray-900 font-medium">Hashnode Publication</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="label-12-mono text-purple-1000 bg-purple-100 border border-purple-400 px-2.5 py-0.5 rounded-full font-semibold uppercase whitespace-nowrap">Featured Guide</span>
+                <span className="text-gray-400 hidden xs:inline">•</span>
+                <span className="label-12 text-gray-900 font-medium whitespace-nowrap">Hashnode Publication</span>
               </div>
 
               <h3 className="heading-24 text-gray-1000 font-extrabold group-hover:text-blue-700 transition-colors">
