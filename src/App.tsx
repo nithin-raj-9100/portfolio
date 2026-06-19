@@ -17,7 +17,8 @@ import {
   Globe,
   Sun,
   Moon,
-  Monitor
+  Monitor,
+  Menu
 } from "lucide-react";
 
 // Brand icons as inline custom SVGs due to Lucide v1.x removal
@@ -257,6 +258,9 @@ function App() {
   // Navigation active state
   const [activeTab, setActiveTab] = useState<string>("overview");
 
+  // Mobile navigation drawer state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   // Dynamic Theme state
   const [theme, setTheme] = useState<Theme>(() => {
     return (localStorage.getItem("theme") as Theme) || "system";
@@ -421,18 +425,20 @@ function App() {
     <div className="min-h-screen bg-background-100 text-gray-1000 antialiased flex flex-col selection:bg-gray-1000 selection:text-background-100">
       
       {/* GLOW DECORATIONS (Vercel Style, minimalist radial grids) */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1400px] h-[600px] pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-250px] left-[20%] w-[600px] h-[500px] bg-blue-100/40 dark:bg-blue-900/15 rounded-full blur-[120px] opacity-70"></div>
-        <div className="absolute top-[-100px] right-[10%] w-[500px] h-[400px] bg-pink-100/35 dark:bg-pink-900/10 rounded-full blur-[100px] opacity-60"></div>
-        <div className="absolute top-[300px] left-[40%] w-[400px] h-[300px] bg-amber-100/30 dark:bg-amber-900/10 rounded-full blur-[90px] opacity-50"></div>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-350 h-150 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-62.5 left-[20%] w-150 h-125 bg-blue-100/40 dark:bg-blue-900/15 rounded-full blur-[120px] opacity-70"></div>
+        <div className="absolute -top-25 right-[10%] w-125 h-100 bg-pink-100/35 dark:bg-pink-900/10 rounded-full blur-[100px] opacity-60"></div>
+        <div className="absolute top-75 left-[40%] w-100 h-75 bg-amber-100/30 dark:bg-amber-900/10 rounded-full blur-[90px] opacity-50"></div>
       </div>
 
       {/* TOP NOTIFICATION BAR */}
       <div className="w-full bg-background-200 border-b border-gray-200 text-center py-2 px-4 z-50 relative">
-        <div className="max-w-7xl mx-auto flex justify-center items-center gap-2 label-12">
-          <span className="w-2 h-2 rounded-full bg-green-600 animate-pulse inline-block"></span>
-          <span className="font-medium text-gray-900">Available for SDE-1 & Full-Stack roles</span>
-          <span className="text-gray-400">|</span>
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-center items-center gap-1.5 sm:gap-2 label-12">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-green-600 animate-pulse inline-block"></span>
+            <span className="font-medium text-gray-900">Available for SDE-1 & Full-Stack roles</span>
+          </div>
+          <span className="text-gray-400 hidden sm:inline">|</span>
           <button 
             onClick={() => handleCopy("nithinraj9100@gmail.com", "Email")} 
             className="text-blue-700 hover:underline inline-flex items-center gap-1 font-medium cursor-pointer"
@@ -444,7 +450,7 @@ function App() {
 
       {/* STICKY HEADER */}
       <header className="sticky top-0 bg-background-100/80 backdrop-blur-md border-b border-gray-200 z-40 transition-all duration-200">
-        <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-300 mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
             {/* Logo / Personal Brand */}
             <a href="#" className="flex items-center gap-2.5 group">
@@ -487,16 +493,16 @@ function App() {
             <div className="relative" ref={themeMenuRef}>
               <button
                 onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
-                className="geist-focus border border-gray-300 hover:border-gray-500 bg-background-100 text-gray-900 hover:text-gray-1000 h-[36px] px-2.5 rounded-sm flex items-center gap-1.5 text-sm font-medium transition-colors cursor-pointer shadow-raised relative"
+                className="geist-focus border border-gray-300 hover:border-gray-500 bg-background-100 text-gray-900 hover:text-gray-1000 h-9 px-2.5 rounded-sm flex items-center gap-1.5 text-sm font-medium transition-colors cursor-pointer shadow-raised relative"
                 title="Change theme"
               >
                 {theme === "light" && <Sun size={14} className="text-amber-600" />}
                 {theme === "dark" && <Moon size={14} className="text-blue-600 dark:text-blue-500" />}
                 {theme === "system" && <Monitor size={14} className="text-gray-600" />}
                 
-                <span className="capitalize label-13 font-medium select-none">{theme}</span>
+                <span className="capitalize label-13 font-medium select-none hidden sm:inline">{theme}</span>
                 
-                <ChevronDown size={12} className="text-gray-600 shrink-0 ml-0.5" />
+                <ChevronDown size={12} className="text-gray-600 shrink-0 ml-0.5 hidden sm:inline" />
               </button>
 
               {isThemeMenuOpen && (
@@ -534,7 +540,7 @@ function App() {
               target="_blank"
               rel="noreferrer"
               onClick={() => posthog?.capture("github_profile_clicked", { source: "header" })}
-              className="geist-focus border border-gray-300 hover:border-gray-500 bg-background-100 text-gray-900 hover:text-gray-1000 h-[36px] w-[36px] rounded-sm flex items-center justify-center transition-colors cursor-pointer shadow-raised"
+              className="geist-focus border border-gray-300 hover:border-gray-500 bg-background-100 text-gray-900 hover:text-gray-1000 h-9 w-9 rounded-sm hidden sm:flex items-center justify-center transition-colors cursor-pointer shadow-raised"
               title="GitHub"
             >
               <GithubIcon size={16} />
@@ -544,24 +550,63 @@ function App() {
               target="_blank"
               rel="noreferrer"
               onClick={() => posthog?.capture("linkedin_profile_clicked", { source: "header" })}
-              className="geist-focus border border-gray-300 hover:border-gray-500 bg-background-100 text-gray-900 hover:text-gray-1000 h-[36px] w-[36px] rounded-sm flex items-center justify-center transition-colors cursor-pointer shadow-raised"
+              className="geist-focus border border-gray-300 hover:border-gray-500 bg-background-100 text-gray-900 hover:text-gray-1000 h-9 w-9 rounded-sm hidden sm:flex items-center justify-center transition-colors cursor-pointer shadow-raised"
               title="LinkedIn"
             >
               <LinkedinIcon size={16} />
             </a>
             <button
               onClick={() => { setIsContactModalOpen(true); posthog?.capture("contact_modal_opened", { source: "header" }); }}
-              className="geist-focus text-sm font-medium bg-gray-1000 hover:bg-gray-800 text-background-100 px-3.5 h-[36px] rounded-sm flex items-center gap-1.5 transition-all duration-150 cursor-pointer shadow-raised active:bg-gray-900"
+              className="geist-focus text-sm font-medium bg-gray-1000 hover:bg-gray-800 text-background-100 px-2.5 sm:px-3.5 h-9 rounded-sm flex items-center gap-1.5 transition-all duration-150 cursor-pointer shadow-raised active:bg-gray-900"
             >
               <Mail size={14} />
-              <span>Contact</span>
+              <span className="hidden sm:inline">Contact</span>
+            </button>
+
+            {/* Mobile Navigation Drawer Toggle */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="geist-focus border border-gray-300 hover:border-gray-500 bg-background-100 text-gray-900 hover:text-gray-1000 h-9 w-9 rounded-sm flex md:hidden items-center justify-center transition-colors cursor-pointer shadow-raised shrink-0"
+              title="Toggle Menu"
+            >
+              {isMobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
             </button>
           </div>
         </div>
+
+        {/* Mobile Navigation Dropdown Popover */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute right-6 top-18 w-52 bg-background-100 border border-gray-300 rounded-md shadow-popover p-1.5 z-50 animate-fadeIn">
+            {[
+              { id: "overview", label: "Overview" },
+              { id: "experience", label: "Experience" },
+              { id: "skills", label: "Skills" },
+              { id: "projects", label: "Projects" },
+              { id: "blog", label: "Writing" },
+            ].map((tab) => (
+              <a
+                key={tab.id}
+                href={`#${tab.id}`}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setIsMobileMenuOpen(false);
+                  posthog?.capture("nav_link_clicked", { section: tab.id, source: "mobile_menu" });
+                }}
+                className={`block w-full px-3.5 py-2.5 rounded-sm text-sm font-semibold transition-all duration-150 ${
+                  activeTab === tab.id
+                    ? "text-gray-1000 bg-background-200"
+                    : "text-gray-900 hover:text-gray-1000 hover:bg-gray-100"
+                }`}
+              >
+                {tab.label}
+              </a>
+            ))}
+          </div>
+        )}
       </header>
 
       {/* MAIN CONTAINER */}
-      <main className="flex-grow max-w-[1200px] w-full mx-auto px-6 py-12 relative z-10 flex flex-col gap-16 md:gap-24">
+      <main className="grow max-w-300 w-full mx-auto px-6 py-12 relative z-10 flex flex-col gap-16 md:gap-24">
         
         {/* HERO SECTION */}
         <section id="overview" className="scroll-mt-28 flex flex-col gap-6 md:gap-8 pt-4">
@@ -571,18 +616,18 @@ function App() {
               <span className="label-12-mono font-medium tracking-wide uppercase">Software Engineer</span>
             </div>
             
-            <h1 className="heading-56 md:heading-72 tracking-tight text-gray-1000 font-extrabold max-w-[900px] leading-none">
+            <h1 className="heading-56 md:heading-72 tracking-tight text-gray-1000 font-extrabold max-w-225 leading-none">
               Building ultra-fast, robust applications from database to DOM.
             </h1>
           </div>
 
-          <p className="copy-18 md:copy-20 text-gray-900 max-w-[760px] font-normal leading-relaxed">
+          <p className="copy-18 md:copy-20 text-gray-900 max-w-190 font-normal leading-relaxed">
             I am Nithin Raj, a Software Development Engineer (SDE-1) at Wednesday Solutions based in Pune, India. 
             I construct responsive frontends, highly optimized REST APIs, and scalable backend microservices using Node.js, Fastify, Next.js, and Prisma.
           </p>
 
           {/* Quick Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-[900px] mt-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-225 mt-2">
             {[
               { value: "SDE-1", label: "Current Role", sub: "Wednesday Solutions", color: "blue-700" },
               { value: "Full-Stack", label: "Architecture", sub: "Modular APIs & Microservices", color: "purple-700" },
@@ -638,8 +683,34 @@ function App() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-4 items-start">
-            {/* Experience Menu list (LHS) */}
-            <div className="lg:col-span-5 flex flex-col gap-3">
+            {/* Mobile/Tablet Horizontal Tabs (LHS) - Hidden on Desktop */}
+            <div className="lg:hidden flex overflow-x-auto gap-2 pb-2.5 scrollbar-none snap-x -mx-6 px-6">
+              {jobsData.map((job) => {
+                const isActive = expandedJob === job.id;
+                
+                // Construct compact names for horizontal swipe on mobile
+                const compactName = job.company === "Stalcon Solutions Private Limited"
+                  ? (job.role.includes("Intern") ? "Stalcon (Intern)" : "Stalcon (Full-Time)")
+                  : job.company;
+
+                return (
+                  <button
+                    key={job.id}
+                    onClick={() => { setExpandedJob(job.id); posthog?.capture("experience_job_expanded", { company: job.company, role: job.role }); }}
+                    className={`snap-center shrink-0 px-4 py-2.5 rounded-sm border text-sm font-semibold transition-all duration-150 whitespace-nowrap cursor-pointer geist-focus ${
+                      isActive 
+                        ? "bg-gray-1000 text-background-100 border-gray-1000 shadow-raised" 
+                        : "bg-background-200 hover:bg-gray-100/60 border-gray-200 text-gray-900"
+                    }`}
+                  >
+                    {compactName}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Experience Menu list (LHS) - Visible on Desktop */}
+            <div className="hidden lg:flex lg:col-span-5 flex-col gap-3">
               {jobsData.map((job) => {
                 const isActive = expandedJob === job.id;
                 return (
@@ -659,7 +730,7 @@ function App() {
                       {job.logoText}
                     </div>
 
-                    <div className="flex-grow min-w-0">
+                    <div className="grow min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <span className="label-12-mono font-medium text-gray-700">{job.period}</span>
                         {isActive && <span className="w-1.5 h-1.5 rounded-full bg-blue-700"></span>}
@@ -673,7 +744,7 @@ function App() {
             </div>
 
             {/* Expanded Role Detail (RHS) */}
-            <div className="lg:col-span-7 bg-background-100 border border-gray-200 rounded-sm p-6 shadow-raised flex flex-col gap-6 relative min-h-[420px]">
+            <div className="lg:col-span-7 bg-background-100 border border-gray-200 rounded-sm p-6 shadow-raised flex flex-col gap-6 relative min-h-105">
               {jobsData.map((job) => {
                 if (expandedJob !== job.id) return null;
                 return (
@@ -751,7 +822,7 @@ function App() {
                 placeholder="Search skills..."
                 value={skillSearch}
                 onChange={(e) => setSkillSearch(e.target.value)}
-                className="geist-focus w-full bg-background-100 text-gray-1000 border border-gray-300 rounded-sm px-3.5 h-[36px] label-14 placeholder:text-gray-600 transition-all focus:border-gray-1000"
+                className="geist-focus w-full bg-background-100 text-gray-1000 border border-gray-300 rounded-sm px-3.5 h-9 label-14 placeholder:text-gray-600 transition-all focus:border-gray-1000"
               />
               {skillSearch && (
                 <button 
@@ -914,7 +985,7 @@ function App() {
                         target="_blank"
                         rel="noreferrer"
                         onClick={() => posthog?.capture("project_demo_clicked", { project: project.title })}
-                        className="geist-focus flex-grow bg-gray-1000 text-background-100 rounded-sm h-[38px] text-center font-medium label-13 flex items-center justify-center gap-1.5 hover:bg-gray-800 transition-all cursor-pointer shadow-raised active:bg-gray-900"
+                        className="geist-focus grow bg-gray-1000 text-background-100 rounded-sm h-9.5 text-center font-medium label-13 flex items-center justify-center gap-1.5 hover:bg-gray-800 transition-all cursor-pointer shadow-raised active:bg-gray-900"
                       >
                         <Globe size={14} /> Live Demo
                       </a>
@@ -923,7 +994,7 @@ function App() {
                         target="_blank"
                         rel="noreferrer"
                         onClick={() => posthog?.capture("project_github_clicked", { project: project.title })}
-                        className="geist-focus bg-background-100 text-gray-1000 border border-gray-400 rounded-sm h-[38px] px-4 font-medium label-13 flex items-center justify-center gap-1.5 hover:bg-gray-100 transition-all cursor-pointer shadow-raised"
+                        className="geist-focus bg-background-100 text-gray-1000 border border-gray-400 rounded-sm h-9.5 px-4 font-medium label-13 flex items-center justify-center gap-1.5 hover:bg-gray-100 transition-all cursor-pointer shadow-raised"
                       >
                         <GithubIcon size={14} /> GitHub
                       </a>
@@ -954,9 +1025,9 @@ function App() {
 
           {/* Embedded featured article block */}
           <div className="bg-background-200 border border-gray-200 rounded-sm p-6 hover:border-gray-500 shadow-raised transition-all group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-100 rounded-full blur-[40px] pointer-events-none opacity-40"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-100 rounded-full blur-2xl pointer-events-none opacity-40"></div>
             
-            <div className="flex flex-col gap-4 relative z-10 max-w-[850px]">
+            <div className="flex flex-col gap-4 relative z-10 max-w-212.5">
               <div className="flex items-center gap-2">
                 <span className="label-12-mono text-purple-1000 bg-purple-100 border border-purple-400 px-2.5 py-0.5 rounded-full font-semibold uppercase">Featured Guide</span>
                 <span className="text-gray-400">•</span>
@@ -1028,15 +1099,15 @@ function App() {
         </section>
 
         {/* CALL TO ACTION */}
-        <section className="bg-gradient-to-br from-gray-1000 via-gray-900 to-primary text-background-100 rounded-sm p-8 md:p-12 shadow-raised text-center flex flex-col items-center gap-5 relative overflow-hidden">
+        <section className="bg-linear-to-br from-gray-1000 via-gray-900 to-primary text-background-100 rounded-sm p-8 md:p-12 shadow-raised text-center flex flex-col items-center gap-5 relative overflow-hidden">
           {/* Subtle line background details */}
           <div className="absolute inset-0 geist-grid opacity-10 pointer-events-none"></div>
 
-          <h2 className="heading-32 md:heading-40 text-background-100 font-extrabold tracking-tight max-w-[600px] leading-tight relative z-10">
+          <h2 className="heading-32 md:heading-40 text-background-100 font-extrabold tracking-tight max-w-150 leading-tight relative z-10">
             Let's construct your next software product.
           </h2>
           
-          <p className="copy-14 md:copy-16 text-gray-400 max-w-[500px] leading-relaxed relative z-10">
+          <p className="copy-14 md:copy-16 text-gray-400 max-w-125 leading-relaxed relative z-10">
             Send a direct project briefing or general SDE-1 engineering inquiries. I respond within 24 business hours.
           </p>
 
@@ -1060,7 +1131,7 @@ function App() {
 
       {/* FOOTER */}
       <footer className="bg-background-200 border-t border-gray-200 mt-16 relative z-10">
-        <div className="max-w-[1200px] mx-auto px-6 py-12 flex flex-col gap-8 md:gap-12">
+        <div className="max-w-300 mx-auto px-6 py-12 flex flex-col gap-8 md:gap-12">
           
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div className="flex flex-col gap-2">
@@ -1131,7 +1202,7 @@ function App() {
 
       {/* TOAST SYSTEM POPUP */}
       {toast?.show && (
-        <div className="fixed bottom-6 right-6 bg-gray-1000 text-background-100 rounded-sm px-4 py-3 shadow-dialog z-50 flex items-center justify-between gap-3 min-w-[280px] border border-gray-700 animate-slideUp">
+        <div className="fixed bottom-6 right-6 bg-gray-1000 text-background-100 rounded-sm px-4 py-3 shadow-dialog z-50 flex items-center justify-between gap-3 min-w-70 border border-gray-700 animate-slideUp">
           <div className="flex items-center gap-2">
             <Check size={16} className="text-green-600 shrink-0" />
             <span className="label-13 text-background-100 font-medium">{toast.message}</span>
@@ -1148,7 +1219,7 @@ function App() {
       {/* SHARE MODAL */}
       {isShareModalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-background-100 border border-gray-300 rounded-md max-w-md w-full p-6 shadow-dialog relative animate-modalEnter">
+          <div className="bg-background-100 border border-gray-300 rounded-md max-w-md w-full p-4 sm:p-6 shadow-dialog relative animate-modalEnter max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => setIsShareModalOpen(false)}
               className="absolute right-4 top-4 text-gray-600 hover:text-gray-1000 p-1 rounded-sm hover:bg-gray-100 cursor-pointer"
@@ -1178,11 +1249,11 @@ function App() {
                         type="text"
                         readOnly
                         value={item.value}
-                        className="bg-background-200 border border-gray-300 text-gray-1000 rounded-sm text-xs font-mono px-3 py-1.5 flex-grow"
+                        className="bg-background-200 border border-gray-300 text-gray-1000 rounded-sm text-xs font-mono px-3 py-1.5 grow"
                       />
                       <button
                         onClick={() => { handleCopy(item.value, item.label); posthog?.capture("profile_link_copied", { label: item.label }); }}
-                        className="geist-focus bg-gray-100 hover:bg-gray-200 text-gray-1000 border border-gray-400 rounded-sm px-3 h-[30px] label-12 font-medium cursor-pointer"
+                        className="geist-focus bg-gray-100 hover:bg-gray-200 text-gray-1000 border border-gray-400 rounded-sm px-3 h-7.5 label-12 font-medium cursor-pointer"
                       >
                         Copy
                       </button>
@@ -1194,7 +1265,7 @@ function App() {
               <div className="flex justify-end gap-2 pt-2 mt-2 border-t border-gray-200">
                 <button
                   onClick={() => setIsShareModalOpen(false)}
-                  className="geist-focus bg-gray-1000 text-background-100 rounded-sm px-4 h-[36px] label-13 font-semibold hover:bg-gray-800 cursor-pointer"
+                  className="geist-focus bg-gray-1000 text-background-100 rounded-sm px-4 h-9 label-13 font-semibold hover:bg-gray-800 cursor-pointer"
                 >
                   Done
                 </button>
@@ -1207,7 +1278,7 @@ function App() {
       {/* CONTACT MODAL FORM */}
       {isContactModalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-background-100 border border-gray-300 rounded-md max-w-lg w-full p-6 shadow-dialog relative animate-modalEnter">
+          <div className="bg-background-100 border border-gray-300 rounded-md max-w-lg w-full p-4 sm:p-6 shadow-dialog relative animate-modalEnter max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => setIsContactModalOpen(false)}
               className="absolute right-4 top-4 text-gray-600 hover:text-gray-1000 p-1 rounded-sm hover:bg-gray-100 cursor-pointer"
@@ -1232,7 +1303,7 @@ function App() {
                   placeholder="Jake Gutierrez"
                   value={contactName}
                   onChange={(e) => setContactName(e.target.value)}
-                  className="geist-focus w-full bg-background-100 text-gray-1000 border border-gray-300 rounded-sm px-3 h-[40px] label-14 placeholder:text-gray-600 transition-all focus:border-gray-1000"
+                  className="geist-focus w-full bg-background-100 text-gray-1000 border border-gray-300 rounded-sm px-3 h-10 label-14 placeholder:text-gray-600 transition-all focus:border-gray-1000"
                 />
               </div>
 
@@ -1245,7 +1316,7 @@ function App() {
                   placeholder="jake.gutierrez@example.com"
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
-                  className="geist-focus w-full bg-background-100 text-gray-1000 border border-gray-300 rounded-sm px-3 h-[40px] label-14 placeholder:text-gray-600 transition-all focus:border-gray-1000"
+                  className="geist-focus w-full bg-background-100 text-gray-1000 border border-gray-300 rounded-sm px-3 h-10 label-14 placeholder:text-gray-600 transition-all focus:border-gray-1000"
                 />
               </div>
 
@@ -1267,14 +1338,14 @@ function App() {
                 <button
                   type="button"
                   onClick={() => setIsContactModalOpen(false)}
-                  className="geist-focus bg-background-100 text-gray-1000 border border-gray-400 rounded-sm px-4 h-[38px] label-13 font-semibold hover:bg-gray-100 cursor-pointer"
+                  className="geist-focus bg-background-100 text-gray-1000 border border-gray-400 rounded-sm px-4 h-9.5 label-13 font-semibold hover:bg-gray-100 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="geist-focus bg-gray-1000 hover:bg-gray-800 disabled:bg-gray-500 text-background-100 rounded-sm px-5 h-[38px] label-13 font-semibold cursor-pointer flex items-center gap-1.5 shadow-raised"
+                  className="geist-focus bg-gray-1000 hover:bg-gray-800 disabled:bg-gray-500 text-background-100 rounded-sm px-5 h-9.5 label-13 font-semibold cursor-pointer flex items-center gap-1.5 shadow-raised"
                 >
                   {isSubmitting ? "Saving…" : "Deploy Message"}
                 </button>

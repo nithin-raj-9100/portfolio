@@ -544,3 +544,12 @@ body {
 .animate-spin-slow {
   animation: spin 10s linear infinite;
 }
+
+/* Hide scrollbar utility */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
