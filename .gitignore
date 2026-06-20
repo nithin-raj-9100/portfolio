@@ -29,4 +29,4 @@ dist-ssr
 .claude/*
 .agents/*
 skills-lock.json
-.tex
+*.tex
