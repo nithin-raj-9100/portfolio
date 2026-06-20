@@ -4,7 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Streamdown } from "streamdown";
 import { code } from "@streamdown/code";
-import { MessageCircle, X, Send, RotateCcw, ChevronRight } from "lucide-react";
+import { BotMessageSquare, X, Send, RotateCcw, ChevronRight } from "lucide-react";
 
 const SUGGESTED_PROMPTS = [
   "What is Nithin's current role?",
@@ -80,13 +80,11 @@ export default function ResumeChat() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-background-200 flex-shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-full bg-gray-1000 flex items-center justify-center flex-shrink-0">
-                <MessageCircle size={13} className="text-background-100" />
+                <BotMessageSquare size={13} className="text-background-100" />
               </div>
               <div>
                 <p className="heading-14 text-gray-1000">Ask my resume</p>
-                <p className="copy-13 text-gray-700">
-                  Powered by Gemma 4
-                </p>
+                <p className="copy-13 text-gray-700">AI assistant</p>
               </div>
             </div>
             <button
@@ -228,7 +226,7 @@ export default function ResumeChat() {
         className="geist-focus fixed bottom-6 right-4 sm:right-6 z-50 w-14 h-14 rounded-full bg-gray-1000 hover:bg-gray-800 text-background-100 flex items-center justify-center transition-all cursor-pointer animate-fadeIn"
         style={{ boxShadow: "var(--shadow-dialog)" }}
       >
-        {isOpen ? <X size={20} /> : <MessageCircle size={20} />}
+        {isOpen ? <X size={20} /> : <BotMessageSquare size={22} />}
       </button>
     </>
   );

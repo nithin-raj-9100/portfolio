@@ -27,3 +27,6 @@ dist-ssr
 .env.local
 !.env.example
 .claude/*
+.agents/*
+skills-lock.json
+.tex

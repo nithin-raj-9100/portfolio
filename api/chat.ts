@@ -114,7 +114,7 @@ export default async function handler(request: Request): Promise<Response> {
     model: google('gemma-4-31b-it'),
     system: SYSTEM_PROMPT,
     messages: await convertToModelMessages(messages),
-    maxTokens: 1024,
+    maxOutputTokens: 1024,
   });
 
   return result.toUIMessageStreamResponse();
