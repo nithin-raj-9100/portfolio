@@ -169,10 +169,10 @@ export default function ResumeChat() {
             {showThinking && (
               <div className="flex justify-start animate-fadeIn">
                 <div className="px-3 py-2 rounded-[10px] bg-gray-100 copy-13 text-gray-700 flex items-center gap-2">
+                  <span className="text-gray-600">Thinking</span>
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-500 animate-bounce [animation-delay:0ms]" />
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-500 animate-bounce [animation-delay:150ms]" />
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-500 animate-bounce [animation-delay:300ms]" />
-                  <span className="ml-1 text-gray-600">Thinking…</span>
                 </div>
               </div>
             )}
