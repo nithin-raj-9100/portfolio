@@ -122,7 +122,7 @@ export default function ResumeChat() {
           </div>
 
           {/* Message list */}
-          <div className="flex-1 overflow-y-auto scrollbar-none px-4 py-3 flex flex-col gap-4 min-h-0">
+          <div className="flex-1 overflow-y-scroll scrollbar-none px-4 py-3 flex flex-col gap-4 min-h-0">
             {/* Empty state */}
             {messages.length === 0 && (
               <div className="flex flex-col gap-3 animate-fadeIn">
@@ -194,13 +194,17 @@ export default function ResumeChat() {
                             )}
                           </button>
                           {reasoningOpen && (
-                            <div className="px-3 py-2 bg-gray-alpha-100 max-h-[140px] overflow-y-auto scrollbar-none">
-                              <p className="copy-13-mono text-gray-700 whitespace-pre-wrap break-words">
+                            <div className="px-3 py-2 bg-gray-alpha-100 max-h-[180px] overflow-y-auto scrollbar-none">
+                              <Streamdown
+                                mode={isThisStreaming && !lastAssistantHasText ? "streaming" : "static"}
+                                isAnimating={isThisStreaming && !lastAssistantHasText}
+                                caret="circle"
+                                controls={false}
+                                linkSafety={{ enabled: false }}
+                                className="text-xs text-gray-700"
+                              >
                                 {reasoningPart.text}
-                                {isThisStreaming && !lastAssistantHasText && (
-                                  <span className="inline-block w-1.5 h-3 bg-gray-500 ml-0.5 animate-pulse" />
-                                )}
-                              </p>
+                              </Streamdown>
                             </div>
                           )}
                         </div>
