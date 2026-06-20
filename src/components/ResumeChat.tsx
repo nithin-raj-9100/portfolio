@@ -67,6 +67,12 @@ export default function ResumeChat() {
     -1
   );
 
+  // Show thinking indicator while waiting for cold start OR while model is thinking before first token
+  const lastAssistantHasText = messages[lastAssistantIdx]?.parts?.some(
+    (p) => p.type === "text" && (p as { type: "text"; text: string }).text.length > 0
+  );
+  const showThinking = status === "submitted" || (status === "streaming" && !lastAssistantHasText);
+
   return (
     <>
       {/* Chat panel */}
@@ -159,13 +165,14 @@ export default function ResumeChat() {
               </div>
             ))}
 
-            {/* Thinking indicator (submitted but not yet streaming) */}
-            {status === "submitted" && (
+            {/* Thinking indicator — visible during cold start AND while model reasons before first token */}
+            {showThinking && (
               <div className="flex justify-start animate-fadeIn">
-                <div className="px-3 py-2 rounded-[10px] bg-gray-100 copy-13 text-gray-700 flex items-center gap-1.5">
+                <div className="px-3 py-2 rounded-[10px] bg-gray-100 copy-13 text-gray-700 flex items-center gap-2">
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-500 animate-bounce [animation-delay:0ms]" />
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-500 animate-bounce [animation-delay:150ms]" />
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-500 animate-bounce [animation-delay:300ms]" />
+                  <span className="ml-1 text-gray-600">Thinking…</span>
                 </div>
               </div>
             )}

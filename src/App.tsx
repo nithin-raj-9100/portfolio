@@ -1215,7 +1215,7 @@ function App() {
 
       {/* TOAST SYSTEM POPUP */}
       {toast?.show && (
-        <div className="fixed bottom-6 right-6 bg-gray-1000 text-background-100 rounded-sm px-4 py-3 shadow-dialog z-50 flex items-center justify-between gap-3 min-w-70 border border-gray-700 animate-slideUp">
+        <div className="fixed bottom-[96px] right-6 bg-gray-1000 text-background-100 rounded-sm px-4 py-3 shadow-dialog z-50 flex items-center justify-between gap-3 min-w-70 border border-gray-700 animate-slideUp">
           <div className="flex items-center gap-2">
             <Check size={16} className="text-green-600 shrink-0" />
             <span className="label-13 text-background-100 font-medium">{toast.message}</span>
