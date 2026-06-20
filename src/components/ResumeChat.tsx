@@ -4,7 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Streamdown } from "streamdown";
 import { code } from "@streamdown/code";
-import { BotMessageSquare, X, Send, RotateCcw, ChevronRight } from "lucide-react";
+import { BotMessageSquare, X, Send, RotateCcw, ChevronRight, ChevronDown, Brain } from "lucide-react";
 
 const SUGGESTED_PROMPTS = [
   "Why should I hire him?",
@@ -16,6 +16,9 @@ const SUGGESTED_PROMPTS = [
 export default function ResumeChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
+  // Controls whether the reasoning box is open; resets each new response
+  const [reasoningOpen, setReasoningOpen] = useState(true);
+  const autoCollapsedRef = useRef(false); // prevent re-collapsing on every render
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const posthog = usePostHog();
@@ -23,6 +26,14 @@ export default function ResumeChat() {
   const { messages, sendMessage, status, error, regenerate } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
   });
+
+  // Reset reasoning state when a new message is submitted
+  useEffect(() => {
+    if (status === "submitted") {
+      setReasoningOpen(true);
+      autoCollapsedRef.current = false;
+    }
+  }, [status]);
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -43,9 +54,7 @@ export default function ResumeChat() {
     posthog?.capture("resume_chat_opened");
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
-  };
+  const handleClose = () => setIsOpen(false);
 
   const handleSend = () => {
     const text = input.trim();
@@ -67,11 +76,20 @@ export default function ResumeChat() {
     -1
   );
 
-  // Show thinking indicator while waiting for cold start OR while model is thinking before first token
   const lastAssistantHasText = messages[lastAssistantIdx]?.parts?.some(
     (p) => p.type === "text" && (p as { type: "text"; text: string }).text.length > 0
   );
-  const showThinking = status === "submitted" || (status === "streaming" && !lastAssistantHasText);
+
+  // Auto-collapse reasoning box the moment the first text token arrives
+  useEffect(() => {
+    if (lastAssistantHasText && !autoCollapsedRef.current) {
+      autoCollapsedRef.current = true;
+      setReasoningOpen(false);
+    }
+  }, [lastAssistantHasText]);
+
+  // Show simple dots only during cold-start (before reasoning even begins)
+  const showColdStart = status === "submitted";
 
   return (
     <>
@@ -131,42 +149,87 @@ export default function ResumeChat() {
             )}
 
             {/* Messages */}
-            {messages.map((message, i) => (
-              <div
-                key={message.id}
-                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                {message.role === "user" ? (
-                  <div className="max-w-[80%] px-3 py-2 rounded-[10px] bg-gray-1000 text-background-100 copy-13">
-                    {message.parts.map((part, j) =>
-                      part.type === "text" ? (
-                        <span key={j}>{part.text}</span>
-                      ) : null
-                    )}
-                  </div>
-                ) : (
-                  <div className="max-w-[90%] copy-13 text-gray-1000">
-                    {message.parts.map((part, j) =>
-                      part.type === "text" ? (
-                        <Streamdown
-                          key={j}
-                          plugins={{ code }}
-                          caret="block"
-                          isAnimating={isStreaming && i === lastAssistantIdx}
-                          linkSafety={{ enabled: false }}
-                          className="text-sm"
-                        >
-                          {part.text}
-                        </Streamdown>
-                      ) : null
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
+            {messages.map((message, i) => {
+              const isLastAssistant = i === lastAssistantIdx;
+              const reasoningPart = message.parts.find((p) => p.type === "reasoning") as
+                | { type: "reasoning"; text: string }
+                | undefined;
+              const hasReasoning = !!reasoningPart?.text;
+              const isThisStreaming = isStreaming && isLastAssistant;
 
-            {/* Thinking indicator — visible during cold start AND while model reasons before first token */}
-            {showThinking && (
+              return (
+                <div
+                  key={message.id}
+                  className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} gap-2`}
+                >
+                  {/* User bubble */}
+                  {message.role === "user" && (
+                    <div className="max-w-[80%] px-3 py-2 rounded-[10px] bg-gray-1000 text-background-100 copy-13">
+                      {message.parts.map((part, j) =>
+                        part.type === "text" ? (
+                          <span key={j}>{(part as { type: "text"; text: string }).text}</span>
+                        ) : null
+                      )}
+                    </div>
+                  )}
+
+                  {/* Assistant: reasoning collapsible + answer */}
+                  {message.role === "assistant" && (
+                    <div className="w-full flex flex-col gap-2">
+                      {/* Reasoning collapsible — shown while reasoning exists */}
+                      {hasReasoning && (
+                        <div className="border border-gray-200 rounded-[8px] overflow-hidden animate-fadeIn">
+                          <button
+                            onClick={() => setReasoningOpen((v) => !v)}
+                            className="w-full flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+                          >
+                            <Brain size={12} className="text-gray-600 flex-shrink-0" />
+                            <span className="copy-13 text-gray-700 flex-1 text-left">
+                              {isThisStreaming && !lastAssistantHasText ? "Reasoning…" : "Reasoning"}
+                            </span>
+                            {reasoningOpen ? (
+                              <ChevronDown size={13} className="text-gray-500 flex-shrink-0" />
+                            ) : (
+                              <ChevronRight size={13} className="text-gray-500 flex-shrink-0" />
+                            )}
+                          </button>
+                          {reasoningOpen && (
+                            <div className="px-3 py-2 bg-gray-alpha-100 max-h-[140px] overflow-y-auto scrollbar-none">
+                              <p className="copy-13-mono text-gray-700 whitespace-pre-wrap break-words">
+                                {reasoningPart.text}
+                                {isThisStreaming && !lastAssistantHasText && (
+                                  <span className="inline-block w-1.5 h-3 bg-gray-500 ml-0.5 animate-pulse" />
+                                )}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Main answer via Streamdown */}
+                      {message.parts.map((part, j) =>
+                        part.type === "text" ? (
+                          <div key={j} className="copy-13 text-gray-1000">
+                            <Streamdown
+                              plugins={{ code }}
+                              caret="block"
+                              isAnimating={isThisStreaming}
+                              linkSafety={{ enabled: false }}
+                              className="text-sm"
+                            >
+                              {(part as { type: "text"; text: string }).text}
+                            </Streamdown>
+                          </div>
+                        ) : null
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Cold-start indicator — only before first chunk arrives */}
+            {showColdStart && (
               <div className="flex justify-start animate-fadeIn">
                 <div className="px-3 py-2 rounded-[10px] bg-gray-100 copy-13 text-gray-700 flex items-center gap-2">
                   <span className="text-gray-600">Thinking</span>

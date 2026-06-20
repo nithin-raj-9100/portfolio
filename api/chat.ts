@@ -117,5 +117,5 @@ export default async function handler(request: Request): Promise<Response> {
     maxOutputTokens: 1024,
   });
 
-  return result.toUIMessageStreamResponse();
+  return result.toUIMessageStreamResponse({ sendReasoning: true });
 }
