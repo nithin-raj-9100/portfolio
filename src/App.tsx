@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { usePostHog } from "@posthog/react";
+import ResumeChat from "./components/ResumeChat";
 import { 
   Mail, 
   Phone, 
@@ -1366,6 +1367,9 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Floating resume chat widget */}
+      <ResumeChat />
 
     </div>
   );

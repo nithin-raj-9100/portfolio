@@ -2,6 +2,10 @@
 
 @import "tailwindcss";
 
+/* Streamdown component sources for Tailwind v4 scanning */
+@source "../node_modules/streamdown/dist/*.js";
+@source "../node_modules/@streamdown/code/dist/*.js";
+
 /* Define dynamic light and dark theme CSS variables */
 :root {
   /* Geist Light Brand Colors */

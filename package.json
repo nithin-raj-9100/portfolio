@@ -10,12 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.83",
+    "@ai-sdk/react": "^3.0.210",
     "@posthog/react": "^1.10.2",
+    "@streamdown/code": "^1.1.1",
     "@tailwindcss/vite": "^4.3.1",
+    "ai": "^6.0.208",
     "lucide-react": "^1.21.0",
     "posthog-js": "^1.391.2",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "streamdown": "^2.5.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
