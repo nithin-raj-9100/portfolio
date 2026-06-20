@@ -195,16 +195,12 @@ export default function ResumeChat() {
                           </button>
                           {reasoningOpen && (
                             <div className="px-3 py-2 bg-gray-alpha-100 max-h-[180px] overflow-y-auto scrollbar-none">
-                              <Streamdown
-                                mode={isThisStreaming && !lastAssistantHasText ? "streaming" : "static"}
-                                isAnimating={isThisStreaming && !lastAssistantHasText}
-                                caret="circle"
-                                controls={false}
-                                linkSafety={{ enabled: false }}
-                                className="text-xs text-gray-700"
-                              >
+                              <p className="copy-13 text-gray-600 whitespace-pre-wrap break-words leading-relaxed">
                                 {reasoningPart.text}
-                              </Streamdown>
+                                {isThisStreaming && !lastAssistantHasText && (
+                                  <span className="inline-block w-1.5 h-3 bg-gray-400 ml-0.5 align-middle animate-pulse" />
+                                )}
+                              </p>
                             </div>
                           )}
                         </div>
