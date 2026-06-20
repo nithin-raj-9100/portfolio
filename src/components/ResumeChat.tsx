@@ -7,6 +7,7 @@ import { code } from "@streamdown/code";
 import { BotMessageSquare, X, Send, RotateCcw, ChevronRight } from "lucide-react";
 
 const SUGGESTED_PROMPTS = [
+  "Why should I hire him?",
   "What is Nithin's current role?",
   "Which databases has he worked with?",
   "Tell me about CartVerse",
