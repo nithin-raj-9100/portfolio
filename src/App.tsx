@@ -274,6 +274,7 @@ function App() {
   // Skills filter state
   const [selectedSkillCategory, setSelectedSkillCategory] = useState<string>("all");
   const [skillSearch, setSkillSearch] = useState<string>("");
+  const skillSearchRef = useRef<HTMLInputElement>(null);
 
   // Experience accordion state (ID of expanded job, default first)
   const [expandedJob, setExpandedJob] = useState<string>("wednesday");
@@ -346,6 +347,95 @@ function App() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Scroll-based active section tracking via IntersectionObserver
+  useEffect(() => {
+    const sectionIds = ["overview", "experience", "skills", "projects", "blog"];
+    const observers: IntersectionObserver[] = [];
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setActiveTab(id);
+        },
+        { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+      );
+      observer.observe(el);
+      observers.push(observer);
+    });
+
+    return () => observers.forEach((o) => o.disconnect());
+  }, []);
+
+  // ⌘K / Ctrl+K to focus skill search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        const el = document.getElementById("skills");
+        el?.scrollIntoView({ behavior: "smooth" });
+        setTimeout(() => skillSearchRef.current?.focus(), 400);
+      }
+      if (e.key === "Escape") {
+        setIsShareModalOpen(false);
+        setIsContactModalOpen(false);
+        setIsThemeMenuOpen(false);
+        setIsMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Refs for modal focus trapping
+  const shareModalRef = useRef<HTMLDivElement>(null);
+  const contactModalRef = useRef<HTMLDivElement>(null);
+
+  // Focus trap: Share modal
+  useEffect(() => {
+    if (!isShareModalOpen || !shareModalRef.current) return;
+    const el = shareModalRef.current;
+    const focusable = el.querySelectorAll<HTMLElement>(
+      'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length) focusable[0].focus();
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== "Tab" || !focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    el.addEventListener("keydown", handleTab);
+    return () => el.removeEventListener("keydown", handleTab);
+  }, [isShareModalOpen]);
+
+  // Focus trap: Contact modal
+  useEffect(() => {
+    if (!isContactModalOpen || !contactModalRef.current) return;
+    const el = contactModalRef.current;
+    const focusable = el.querySelectorAll<HTMLElement>(
+      'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length) focusable[0].focus();
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== "Tab" || !focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    el.addEventListener("keydown", handleTab);
+    return () => el.removeEventListener("keydown", handleTab);
+  }, [isContactModalOpen]);
 
   // Handle Theme Change
   const handleThemeChange = (newTheme: Theme) => {
@@ -827,6 +917,7 @@ function App() {
                 <Search size={15} />
               </span>
               <input
+                ref={skillSearchRef}
                 type="text"
                 placeholder="Search skills..."
                 value={skillSearch}
@@ -1168,7 +1259,12 @@ function App() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone size={14} className="text-gray-600" />
-                  <span className="font-mono">8143632579</span>
+                  <button
+                    onClick={() => handleCopy("8143632579", "Phone")}
+                    className="font-mono hover:text-blue-700 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    8143632579 <Copy size={10} />
+                  </button>
                 </div>
               </div>
             </div>
@@ -1231,8 +1327,17 @@ function App() {
 
       {/* SHARE MODAL */}
       {isShareModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-background-100 border border-gray-300 rounded-md max-w-md w-full p-4 sm:p-6 shadow-dialog relative animate-modalEnter max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setIsShareModalOpen(false); }}
+        >
+          <div
+            ref={shareModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Share Portfolio"
+            className="bg-background-100 border border-gray-300 rounded-md max-w-md w-full p-4 sm:p-6 shadow-dialog relative animate-modalEnter max-h-[90vh] overflow-y-auto"
+          >
             <button 
               onClick={() => setIsShareModalOpen(false)}
               className="absolute right-4 top-4 text-gray-600 hover:text-gray-1000 p-1 rounded-sm hover:bg-gray-100 cursor-pointer"
@@ -1290,8 +1395,17 @@ function App() {
 
       {/* CONTACT MODAL FORM */}
       {isContactModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-background-100 border border-gray-300 rounded-md max-w-lg w-full p-4 sm:p-6 shadow-dialog relative animate-modalEnter max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setIsContactModalOpen(false); }}
+        >
+          <div
+            ref={contactModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Send Message"
+            className="bg-background-100 border border-gray-300 rounded-md max-w-lg w-full p-4 sm:p-6 shadow-dialog relative animate-modalEnter max-h-[90vh] overflow-y-auto"
+          >
             <button 
               onClick={() => setIsContactModalOpen(false)}
               className="absolute right-4 top-4 text-gray-600 hover:text-gray-1000 p-1 rounded-sm hover:bg-gray-100 cursor-pointer"
