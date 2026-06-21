@@ -2,15 +2,15 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { usePostHog } from "@posthog/react";
 import ResumeChat from "./components/ResumeChat";
 import { 
-  Mail, 
-  Phone, 
-  ExternalLink, 
-  ChevronRight, 
+  Mail,
+  Phone,
+  ExternalLink,
+  ChevronRight,
   ChevronDown,
-  Check, 
-  Copy, 
-  X, 
-  BookOpen, 
+  Check,
+  Copy,
+  X,
+  BookOpen,
   Sparkles,
   ArrowRight,
   Share2,
@@ -20,7 +20,8 @@ import {
   Moon,
   Monitor,
   Menu,
-  Search
+  Search,
+  Download
 } from "lucide-react";
 
 // Brand icons as inline custom SVGs due to Lucide v1.x removal
@@ -651,6 +652,17 @@ function App() {
             >
               <LinkedinIcon size={16} />
             </a>
+            <a
+              href="/resume.pdf"
+              download="Nithinraj_Resume.pdf"
+              onClick={() => posthog?.capture("resume_downloaded", { source: "header" })}
+              className="geist-focus border border-gray-300 hover:border-gray-500 bg-background-100 text-gray-900 hover:text-gray-1000 h-9 px-2.5 rounded-sm hidden sm:flex items-center gap-1.5 text-sm font-medium transition-colors cursor-pointer shadow-raised"
+              title="Download Resume"
+            >
+              <Download size={14} />
+              <span className="hidden lg:inline">Resume</span>
+            </a>
+
             <button
               onClick={() => { setIsContactModalOpen(true); posthog?.capture("contact_modal_opened", { source: "header" }); }}
               className="geist-focus text-sm font-medium bg-gray-1000 hover:bg-gray-800 text-background-100 px-2.5 sm:px-3.5 h-9 rounded-sm flex items-center gap-1.5 transition-all duration-150 cursor-pointer shadow-raised active:bg-gray-900"
@@ -755,6 +767,15 @@ function App() {
               className="geist-focus bg-background-100 hover:bg-gray-100 text-gray-1000 border border-gray-400 rounded-sm h-11 px-5 font-semibold label-14 flex items-center gap-2 transition-all cursor-pointer shadow-raised"
             >
               <GithubIcon size={16} /> GitHub Profile
+            </a>
+
+            <a
+              href="/resume.pdf"
+              download="Nithinraj_Resume.pdf"
+              onClick={() => posthog?.capture("resume_downloaded")}
+              className="geist-focus text-gray-900 hover:text-gray-1000 rounded-sm h-11 px-4 font-semibold label-14 flex items-center gap-2 transition-all cursor-pointer hover:bg-gray-100"
+            >
+              <Download size={15} /> Resume
             </a>
 
             <button
