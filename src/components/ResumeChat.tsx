@@ -18,8 +18,9 @@ export default function ResumeChat() {
   const [input, setInput] = useState("");
   // Controls whether the reasoning box is open; resets each new response
   const [reasoningOpen, setReasoningOpen] = useState(true);
-  const autoCollapsedRef = useRef(false); // prevent re-collapsing on every render
+  const autoCollapsedRef = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const reasoningScrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const posthog = usePostHog();
 
@@ -35,12 +36,29 @@ export default function ResumeChat() {
     }
   }, [status]);
 
-  // Auto-scroll to latest message
+  // Auto-scroll outer chat to latest message
   useEffect(() => {
     if (isOpen) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isOpen]);
+
+  // Extract latest reasoning text across all messages (for scroll dep)
+  const lastReasoningText = messages.reduce<string>((acc, m) => {
+    if (m.role !== "assistant") return acc;
+    const part = m.parts?.find((p) => p.type === "reasoning") as
+      | { type: "reasoning"; text: string }
+      | undefined;
+    return part?.text ?? acc;
+  }, "");
+
+  // Auto-scroll reasoning box as tokens stream in
+  useEffect(() => {
+    if (reasoningOpen && reasoningScrollRef.current) {
+      const el = reasoningScrollRef.current;
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [lastReasoningText, reasoningOpen]);
 
   // Focus input when panel opens
   useEffect(() => {
@@ -122,7 +140,7 @@ export default function ResumeChat() {
           </div>
 
           {/* Message list */}
-          <div className="flex-1 overflow-y-scroll scrollbar-none px-4 py-3 flex flex-col gap-4 min-h-0">
+          <div className="flex-1 overflow-y-scroll chat-scrollbar px-4 py-3 flex flex-col gap-4 min-h-0">
             {/* Empty state */}
             {messages.length === 0 && (
               <div className="flex flex-col gap-3 animate-fadeIn">
@@ -194,7 +212,7 @@ export default function ResumeChat() {
                             )}
                           </button>
                           {reasoningOpen && (
-                            <div className="px-3 py-2 bg-gray-alpha-100 max-h-[180px] overflow-y-auto scrollbar-none">
+                            <div ref={reasoningScrollRef} className="px-3 py-2 bg-gray-alpha-100 max-h-[180px] overflow-y-auto reasoning-scrollbar">
                               <p className="copy-13 text-gray-600 whitespace-pre-wrap break-words leading-relaxed">
                                 {reasoningPart.text}
                                 {isThisStreaming && !lastAssistantHasText && (

@@ -562,3 +562,44 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Chat panel scrollbar — Geist thin style */
+.chat-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-400) transparent;
+}
+.chat-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.chat-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: 9999px;
+}
+.chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-600);
+}
+
+/* Reasoning box scrollbar — same but 3px */
+.reasoning-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-300) transparent;
+}
+.reasoning-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+.reasoning-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.reasoning-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 9999px;
+}
+.reasoning-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
