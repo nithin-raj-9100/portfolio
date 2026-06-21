@@ -62,10 +62,3 @@ The AI chat requires a Google AI API key:
 GOOGLE_GENERATIVE_AI_API_KEY=your_key_here
 ```
 
----
-
-## Deployment
-
-Deployed on Vercel. Every push to `main` triggers a production deployment automatically.
-
-The `api/chat.ts` edge function runs on Vercel's edge runtime — no cold starts.
