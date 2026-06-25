@@ -13,7 +13,6 @@ import {
   BookOpen,
   Sparkles,
   ArrowRight,
-  Share2,
   GraduationCap,
   Globe,
   Sun,
@@ -760,30 +759,13 @@ function App() {
             </button>
 
             <a
-              href="https://github.com/nithin-raj-9100"
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => posthog?.capture("github_profile_clicked", { source: "hero" })}
-              className="geist-focus bg-background-100 hover:bg-gray-100 text-gray-1000 border border-gray-400 rounded-sm h-11 px-5 font-semibold label-14 flex items-center gap-2 transition-all cursor-pointer shadow-raised"
-            >
-              <GithubIcon size={16} /> GitHub Profile
-            </a>
-
-            <a
               href="/resume.pdf"
               download="Nithinraj_Resume.pdf"
               onClick={() => posthog?.capture("resume_downloaded")}
-              className="geist-focus text-gray-900 hover:text-gray-1000 rounded-sm h-11 px-4 font-semibold label-14 flex items-center gap-2 transition-all cursor-pointer hover:bg-gray-100"
+              className="geist-focus bg-background-100 hover:bg-gray-100 text-gray-1000 border border-gray-400 rounded-sm h-11 px-5 font-semibold label-14 flex items-center gap-2 transition-all cursor-pointer shadow-raised"
             >
               <Download size={15} /> Resume
             </a>
-
-            <button
-              onClick={() => { setIsShareModalOpen(true); posthog?.capture("share_profile_clicked"); }}
-              className="geist-focus text-gray-900 hover:text-gray-1000 rounded-sm h-11 px-4 font-semibold label-14 flex items-center gap-2 transition-all cursor-pointer hover:bg-gray-100"
-            >
-              <Share2 size={15} /> Share Profile
-            </button>
           </div>
         </section>
 
