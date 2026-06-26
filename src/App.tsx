@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { usePostHog } from "@posthog/react";
 import ResumeChat from "./components/ResumeChat";
+import SpotlightCard from "./components/SpotlightCard";
 import { 
   Mail,
   Phone,
@@ -741,11 +742,11 @@ function App() {
               { value: "PostgreSQL", label: "Databases Handled", sub: "Fastify & Prisma ORM", color: "green-700" },
               { value: "8.0", label: "B. Tech CGPA", sub: "Computer Science", color: "amber-900" }
             ].map((stat, idx) => (
-              <div key={idx} className="bg-background-200 border border-gray-200 rounded-sm p-4 hover:border-gray-300 transition-colors shadow-raised group">
+              <SpotlightCard key={idx} className="bg-background-200 border border-gray-200 rounded-sm p-4 hover:border-gray-300 transition-colors shadow-raised group">
                 <div className="label-12-mono text-gray-700 uppercase tracking-wider font-semibold mb-1">{stat.label}</div>
                 <div className="heading-24 font-bold text-gray-1000 group-hover:text-blue-700">{stat.value}</div>
                 <div className="label-12 text-gray-900 font-medium">{stat.sub}</div>
-              </div>
+              </SpotlightCard>
             ))}
           </div>
 
@@ -843,7 +844,7 @@ function App() {
             </div>
 
             {/* Expanded Role Detail (RHS) */}
-            <div className="lg:col-span-7 bg-background-100 border border-gray-200 rounded-sm p-6 shadow-raised flex flex-col gap-6 relative min-h-105">
+            <SpotlightCard className="lg:col-span-7 bg-background-100 border border-gray-200 rounded-sm p-6 shadow-raised flex flex-col gap-6 relative min-h-105">
               {jobsData.map((job) => {
                 if (expandedJob !== job.id) return null;
                 return (
@@ -902,7 +903,7 @@ function App() {
                   </div>
                 );
               })}
-            </div>
+            </SpotlightCard>
           </div>
         </section>
 
@@ -976,8 +977,8 @@ function App() {
                 };
 
                 return (
-                  <div 
-                    key={catId} 
+                  <SpotlightCard
+                    key={catId}
                     className="bg-background-200 dark:bg-background-100 border border-gray-200 rounded-sm p-5 shadow-raised hover:border-gray-400 transition-all flex flex-col gap-4 animate-fadeIn"
                   >
                     {/* Category Header */}
@@ -1006,10 +1007,10 @@ function App() {
                             title={`${skill.name} - ${skill.level}`}
                           >
                             <span className={`w-1.5 h-1.5 rounded-full ${
-                              skill.level === 'Expert' 
-                                ? 'bg-blue-700' 
-                                : skill.level === 'Advanced' 
-                                  ? 'bg-purple-700' 
+                              skill.level === 'Expert'
+                                ? 'bg-blue-700'
+                                : skill.level === 'Advanced'
+                                  ? 'bg-purple-700'
                                   : 'bg-gray-600'
                             }`}></span>
                             {skill.name}
@@ -1017,7 +1018,7 @@ function App() {
                         );
                       })}
                     </div>
-                  </div>
+                  </SpotlightCard>
                 );
               })}
             </div>
@@ -1040,8 +1041,8 @@ function App() {
           {/* Project Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
             {projectsData.map((project, idx) => (
-                <div 
-                  key={idx} 
+                <SpotlightCard
+                  key={idx}
                   className="bg-background-100 border border-gray-200 hover:border-gray-500 rounded-sm p-6 shadow-raised transition-all duration-300 flex flex-col justify-between group h-full hover:shadow-popover"
                 >
                   <div>
@@ -1107,7 +1108,7 @@ function App() {
                       </a>
                     </div>
                   </div>
-                </div>
+                </SpotlightCard>
               ))}
           </div>
         </section>
@@ -1131,7 +1132,7 @@ function App() {
           </div>
 
           {/* Embedded featured article block */}
-          <div className="bg-background-200 border border-gray-200 rounded-sm p-6 hover:border-gray-500 shadow-raised transition-all group relative overflow-hidden">
+          <SpotlightCard className="bg-background-200 border border-gray-200 rounded-sm p-6 hover:border-gray-500 shadow-raised transition-all group relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-100 rounded-full blur-2xl pointer-events-none opacity-40"></div>
             
             <div className="flex flex-col gap-4 relative z-10 max-w-212.5">
@@ -1176,7 +1177,7 @@ function App() {
                 </a>
               </div>
             </div>
-          </div>
+          </SpotlightCard>
         </section>
 
         {/* COMPREHENSIVE EDUCATION SECTION */}
@@ -1186,7 +1187,7 @@ function App() {
             <h2 className="heading-32 tracking-tight text-gray-1000 font-bold">Education</h2>
           </div>
 
-          <div className="bg-background-100 border border-gray-200 rounded-sm p-6 shadow-raised flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-gray-300 transition-colors">
+          <SpotlightCard className="bg-background-100 border border-gray-200 rounded-sm p-6 shadow-raised flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-gray-300 transition-colors">
             <div className="flex gap-4">
               <div className="w-12 h-12 rounded-sm bg-blue-100 border border-blue-400 flex items-center justify-center text-blue-700 shrink-0">
                 <GraduationCap size={24} />
@@ -1202,7 +1203,7 @@ function App() {
               <div className="label-12-mono text-gray-700 font-bold uppercase mb-0.5">Graduation Date</div>
               <div className="label-14 font-semibold text-gray-1000">December 2021 – June 2025</div>
             </div>
-          </div>
+          </SpotlightCard>
         </section>
 
         {/* CALL TO ACTION */}

@@ -4,7 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Streamdown } from "streamdown";
 import { code } from "@streamdown/code";
-import { BotMessageSquare, X, Send, RotateCcw, ChevronRight, ChevronDown, Brain } from "lucide-react";
+import { BotMessageSquare, X, Send, RotateCcw, ChevronRight, ChevronDown, Brain, Trash2 } from "lucide-react";
 
 const SUGGESTED_PROMPTS = [
   "Why should I hire him?",
@@ -24,9 +24,14 @@ export default function ResumeChat() {
   const inputRef = useRef<HTMLInputElement>(null);
   const posthog = usePostHog();
 
-  const { messages, sendMessage, status, error, regenerate } = useChat({
+  const { messages, sendMessage, status, error, regenerate, setMessages } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
   });
+
+  const handleClearHistory = () => {
+    setMessages([]);
+    posthog?.capture("resume_chat_cleared");
+  };
 
   // Reset reasoning state when a new message is submitted
   useEffect(() => {
@@ -130,13 +135,26 @@ export default function ResumeChat() {
                 <p className="copy-13 text-gray-700">AI assistant</p>
               </div>
             </div>
-            <button
-              onClick={handleClose}
-              className="geist-focus w-7 h-7 flex items-center justify-center rounded-full text-gray-700 hover:text-gray-1000 hover:bg-gray-200 transition-colors cursor-pointer"
-              aria-label="Close chat"
-            >
-              <X size={15} />
-            </button>
+            <div className="flex items-center gap-1.5 ml-auto">
+              {messages.length > 0 && (
+                <button
+                  onClick={handleClearHistory}
+                  disabled={isStreaming}
+                  className="geist-focus w-7 h-7 flex items-center justify-center rounded-full text-gray-700 hover:text-red-700 hover:bg-gray-200 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  title="Clear chat history"
+                  aria-label="Clear chat history"
+                >
+                  <Trash2 size={14} />
+                </button>
+              )}
+              <button
+                onClick={handleClose}
+                className="geist-focus w-7 h-7 flex items-center justify-center rounded-full text-gray-700 hover:text-gray-1000 hover:bg-gray-200 transition-colors cursor-pointer"
+                aria-label="Close chat"
+              >
+                <X size={15} />
+              </button>
+            </div>
           </div>
 
           {/* Message list */}
