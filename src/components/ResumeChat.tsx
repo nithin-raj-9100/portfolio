@@ -4,7 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Streamdown } from "streamdown";
 import { code } from "@streamdown/code";
-import { BotMessageSquare, X, Send, RotateCcw, ChevronRight, ChevronDown, Brain, Trash2 } from "lucide-react";
+import { BotMessageSquare, X, Send, RotateCcw, ChevronRight, ChevronDown, Brain, Trash2, Maximize2, Minimize2 } from "lucide-react";
 import {
   MessageScrollerProvider,
   MessageScroller,
@@ -25,6 +25,7 @@ const SUGGESTED_PROMPTS = [
 
 export default function ResumeChat() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState("");
   const [reasoningOpen, setReasoningOpen] = useState(true);
   const [scrollerKey, setScrollerKey] = useState(0);
@@ -115,7 +116,7 @@ export default function ResumeChat() {
     <>
       {isOpen && (
         <div
-          className="fixed bottom-[84px] right-4 sm:right-6 z-50 w-[calc(100vw-32px)] sm:w-[380px] max-h-[540px] flex flex-col bg-background-100 border border-gray-300 rounded-[16px] overflow-hidden animate-slideUp"
+          className={`fixed bottom-[84px] right-4 sm:right-6 z-50 flex flex-col bg-background-100 border border-gray-300 rounded-[16px] overflow-hidden animate-slideUp transition-[width,max-height] duration-300 ease-in-out w-[calc(100vw-32px)] ${isExpanded ? "sm:w-[560px] max-h-[720px]" : "sm:w-[380px] max-h-[540px]"}`}
           style={{ boxShadow: "var(--shadow-dialog)" }}
           role="dialog"
           aria-label="Resume chat"
@@ -132,6 +133,14 @@ export default function ResumeChat() {
               </div>
             </div>
             <div className="flex items-center gap-1.5 ml-auto">
+              <button
+                onClick={() => setIsExpanded((v) => !v)}
+                className="geist-focus w-7 h-7 flex items-center justify-center rounded-full text-gray-700 hover:text-gray-1000 hover:bg-gray-200 transition-colors cursor-pointer"
+                title={isExpanded ? "Collapse" : "Expand"}
+                aria-label={isExpanded ? "Collapse chat" : "Expand chat"}
+              >
+                {isExpanded ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+              </button>
               {messages.length > 0 && (
                 <button
                   onClick={handleClearHistory}
