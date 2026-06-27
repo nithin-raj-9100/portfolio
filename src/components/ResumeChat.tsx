@@ -27,6 +27,7 @@ export default function ResumeChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [reasoningOpen, setReasoningOpen] = useState(true);
+  const [scrollerKey, setScrollerKey] = useState(0);
   const autoCollapsedRef = useRef(false);
   const reasoningScrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -38,6 +39,7 @@ export default function ResumeChat() {
 
   const handleClearHistory = () => {
     setMessages([]);
+    setScrollerKey((k) => k + 1);
     posthog?.capture("resume_chat_cleared");
   };
 
@@ -152,7 +154,7 @@ export default function ResumeChat() {
           </div>
 
           {/* Message list — MessageScroller handles anchoring and auto-scroll */}
-          <MessageScrollerProvider>
+          <MessageScrollerProvider key={scrollerKey}>
             <MessageScroller className="flex-1 min-h-0">
               <MessageScrollerViewport className="chat-scrollbar px-4 py-3">
 
