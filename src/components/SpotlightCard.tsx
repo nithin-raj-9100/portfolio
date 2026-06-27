@@ -5,6 +5,27 @@ interface SpotlightCardProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
+const getLayoutClasses = (className: string) => {
+  const classes = className.split(/\s+/);
+  const layoutKeywords = [
+    "flex",
+    "grid",
+    "justify-",
+    "items-",
+    "gap-",
+    "space-",
+    "self-",
+    "place-",
+  ];
+
+  const innerClasses = classes.filter((cls) => {
+    const cleanCls = cls.includes(":") ? cls.split(":").pop() : cls;
+    return cleanCls && layoutKeywords.some((keyword) => cleanCls.startsWith(keyword));
+  });
+
+  return innerClasses.join(" ");
+};
+
 export default function SpotlightCard({ children, className = "", ...props }: SpotlightCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [coords, setCoords] = useState({ x: 0, y: 0 });
@@ -35,6 +56,8 @@ export default function SpotlightCard({ children, className = "", ...props }: Sp
       card.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, []);
+
+  const layoutClasses = getLayoutClasses(className);
 
   return (
     <div
@@ -67,7 +90,7 @@ export default function SpotlightCard({ children, className = "", ...props }: Sp
           zIndex: 2,
         }}
       />
-      <div className="relative z-10 h-full w-full">{children}</div>
+      <div className={`relative z-10 h-full w-full ${layoutClasses}`}>{children}</div>
     </div>
   );
 }
