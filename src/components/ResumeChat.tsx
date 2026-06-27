@@ -11,6 +11,7 @@ import {
   MessageScrollerViewport,
   MessageScrollerContent,
   MessageScrollerItem,
+  MessageScrollerButton,
 } from "@/components/ui/message-scroller";
 import { Message, MessageContent } from "@/components/ui/message";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
@@ -154,6 +155,7 @@ export default function ResumeChat() {
           <MessageScrollerProvider>
             <MessageScroller className="flex-1 min-h-0">
               <MessageScrollerViewport className="chat-scrollbar px-4 py-3">
+
                 <MessageScrollerContent className="gap-4">
                   {/* Empty state */}
                   {messages.length === 0 && (
@@ -308,6 +310,7 @@ export default function ResumeChat() {
                   )}
                 </MessageScrollerContent>
               </MessageScrollerViewport>
+              <MessageScrollerButton />
             </MessageScroller>
           </MessageScrollerProvider>
 
