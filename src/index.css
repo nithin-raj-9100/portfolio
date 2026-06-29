@@ -615,3 +615,23 @@ body {
 .reasoning-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--gray-500);
 }
+
+/* Custom View Transitions for circular clip-path theme toggle */
+::view-transition-image-pair(root) {
+  isolation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+  display: block;
+}
+
+/* Ensure the new view screenshot is drawn above the old one */
+::view-transition-new(root) {
+  z-index: 9999;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}

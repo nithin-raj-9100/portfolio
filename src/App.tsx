@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useLayoutEffect } from "react";
+import { flushSync } from "react-dom";
 import { usePostHog } from "@posthog/react";
 import ResumeChat from "./components/ResumeChat";
 import SpotlightCard from "./components/SpotlightCard";
@@ -309,7 +310,7 @@ function App() {
   }, [toast]);
 
   // Handle Theme Application
-  useEffect(() => {
+  useLayoutEffect(() => {
     const root = document.documentElement;
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -438,9 +439,52 @@ function App() {
     return () => el.removeEventListener("keydown", handleTab);
   }, [isContactModalOpen]);
 
-  // Handle Theme Change
-  const handleThemeChange = (newTheme: Theme) => {
-    setTheme(newTheme);
+  // Handle Theme Change with circular View Transition ripple
+  const handleThemeChange = (newTheme: Theme, event?: React.MouseEvent) => {
+    const doc = document as any;
+    const isAppearanceTransition =
+      doc.startViewTransition &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!isAppearanceTransition) {
+      setTheme(newTheme);
+      localStorage.setItem("theme", newTheme);
+      setIsThemeMenuOpen(false);
+      posthog?.capture("theme_changed", { theme: newTheme });
+      showToast(`Theme set to ${newTheme}`);
+      return;
+    }
+
+    const x = event ? event.clientX : window.innerWidth / 2;
+    const y = event ? event.clientY : window.innerHeight / 2;
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    const transition = doc.startViewTransition(async () => {
+      flushSync(() => {
+        setTheme(newTheme);
+      });
+    });
+
+    transition.ready.then(() => {
+      const clipPath = [
+        `circle(0px at ${x}px ${y}px)`,
+        `circle(${endRadius}px at ${x}px ${y}px)`,
+      ];
+      document.documentElement.animate(
+        {
+          clipPath: clipPath,
+        },
+        {
+          duration: 400,
+          easing: "ease-in-out",
+          pseudoElement: "::view-transition-new(root)",
+        }
+      );
+    });
+
     localStorage.setItem("theme", newTheme);
     setIsThemeMenuOpen(false);
     posthog?.capture("theme_changed", { theme: newTheme });
@@ -614,7 +658,7 @@ function App() {
                     return (
                       <button
                         key={item.id}
-                        onClick={() => handleThemeChange(item.id as Theme)}
+                        onClick={(e) => handleThemeChange(item.id as Theme, e)}
                         className={`w-full px-3 py-2 text-left text-sm font-medium flex items-center justify-between hover:bg-gray-100 cursor-pointer ${
                           isSelected ? "text-blue-700 font-semibold" : "text-gray-900"
                         }`}
