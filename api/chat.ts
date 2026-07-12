@@ -171,7 +171,9 @@ export default async function handler(request: Request): Promise<Response> {
           model: google('gemma-4-31b-it'),
           system: SUGGESTIONS_PROMPT,
           prompt: `Recruiter asked: "${lastUserMessage}"\n\nAssistant answered:\n${answer}\n\nJSON array of 3 follow-up questions:`,
-          maxOutputTokens: 200,
+          // Gemma spends ~200-300 output tokens on reasoning before emitting
+          // text and can't disable thinking, so the cap must cover both.
+          maxOutputTokens: 800,
         });
 
         const questions = parseSuggestions(text);
