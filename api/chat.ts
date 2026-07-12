@@ -1,5 +1,13 @@
 import { google } from '@ai-sdk/google';
-import { convertToModelMessages, streamText, UIMessage } from 'ai';
+import {
+  convertToModelMessages,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  generateText,
+  streamText,
+  UIMessage,
+} from 'ai';
+import type { ResumeUIMessage } from '../src/lib/chat-types';
 
 export const config = { runtime: 'edge' };
 
@@ -81,6 +89,32 @@ Rules you must follow:
 
 ${RESUME_CONTEXT}`;
 
+const SUGGESTIONS_PROMPT = `You generate follow-up questions for a recruiter chatting with an AI assistant about Nithin Raj's resume. Given the conversation so far, propose exactly 3 short follow-up questions the recruiter is likely to ask next.
+
+Rules:
+1. Every question must be answerable from the resume context below — never suggest questions the resume cannot answer.
+2. Keep each question under 60 characters, phrased from the recruiter's point of view (e.g. "What did he build at Wednesday Solutions?").
+3. Do not repeat questions already asked in the conversation.
+4. Respond with ONLY a JSON array of 3 strings. No markdown, no code fences, no commentary.
+
+${RESUME_CONTEXT}`;
+
+// Best-effort parse of the model's JSON array (tolerates code fences / stray text)
+function parseSuggestions(text: string): string[] {
+  const match = text.match(/\[[\s\S]*\]/);
+  if (!match) return [];
+  try {
+    const parsed = JSON.parse(match[0]);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((q): q is string => typeof q === 'string' && q.trim().length > 0)
+      .map((q) => q.trim())
+      .slice(0, 3);
+  } catch {
+    return [];
+  }
+}
+
 export default async function handler(request: Request): Promise<Response> {
   if (request.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405 });
@@ -110,12 +144,45 @@ export default async function handler(request: Request): Promise<Response> {
     });
   }
 
-  const result = streamText({
-    model: google('gemma-4-31b-it'),
-    system: SYSTEM_PROMPT,
-    messages: await convertToModelMessages(messages),
-    maxOutputTokens: 1024,
+  const modelMessages = await convertToModelMessages(messages);
+
+  const stream = createUIMessageStream<ResumeUIMessage>({
+    execute: async ({ writer }) => {
+      const result = streamText({
+        model: google('gemma-4-31b-it'),
+        system: SYSTEM_PROMPT,
+        messages: modelMessages,
+        maxOutputTokens: 1024,
+      });
+
+      writer.merge(result.toUIMessageStream({ sendReasoning: true }));
+
+      // After the answer finishes, generate follow-up suggestion chips.
+      // Best-effort: a failure here must never break the main answer.
+      try {
+        const answer = await result.text;
+        const lastUserMessage = messages
+          .filter((m) => m.role === 'user')
+          .at(-1)
+          ?.parts?.map((p) => (p.type === 'text' ? p.text : ''))
+          .join(' ') ?? '';
+
+        const { text } = await generateText({
+          model: google('gemma-4-31b-it'),
+          system: SUGGESTIONS_PROMPT,
+          prompt: `Recruiter asked: "${lastUserMessage}"\n\nAssistant answered:\n${answer}\n\nJSON array of 3 follow-up questions:`,
+          maxOutputTokens: 200,
+        });
+
+        const questions = parseSuggestions(text);
+        if (questions.length > 0) {
+          writer.write({ type: 'data-suggestions', data: { questions } });
+        }
+      } catch {
+        // suggestions are optional — swallow errors
+      }
+    },
   });
 
-  return result.toUIMessageStreamResponse({ sendReasoning: true });
+  return createUIMessageStreamResponse({ stream });
 }

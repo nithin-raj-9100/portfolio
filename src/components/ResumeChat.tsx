@@ -3,7 +3,6 @@ import { usePostHog } from "@posthog/react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Streamdown } from "streamdown";
-import { code } from "@streamdown/code";
 import { BotMessageSquare, X, Send, RotateCcw, ChevronRight, ChevronDown, Brain, Trash2, Maximize2, Minimize2 } from "lucide-react";
 import {
   MessageScrollerProvider,
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/message-scroller";
 import { Message, MessageContent } from "@/components/ui/message";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
+import type { ResumeUIMessage } from "@/lib/chat-types";
 
 const SUGGESTED_PROMPTS = [
   "Why should I hire him?",
@@ -34,7 +34,7 @@ export default function ResumeChat() {
   const inputRef = useRef<HTMLInputElement>(null);
   const posthog = usePostHog();
 
-  const { messages, sendMessage, status, error, regenerate, setMessages } = useChat({
+  const { messages, sendMessage, status, error, regenerate, setMessages } = useChat<ResumeUIMessage>({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
   });
 
@@ -91,6 +91,12 @@ export default function ResumeChat() {
     if (status !== "ready") return;
     sendMessage({ text: prompt });
     posthog?.capture("resume_chat_suggested_prompt_used", { prompt });
+  };
+
+  const handleFollowUp = (question: string) => {
+    if (status !== "ready") return;
+    sendMessage({ text: question });
+    posthog?.capture("resume_chat_followup_used", { question });
   };
 
   const isStreaming = status === "streaming" || status === "submitted";
@@ -204,6 +210,13 @@ export default function ResumeChat() {
                       | undefined;
                     const hasReasoning = !!reasoningPart?.text;
                     const isThisStreaming = isStreaming && isLastAssistant;
+                    const suggestionsPart = message.parts.find(
+                      (p) => p.type === "data-suggestions"
+                    );
+                    const followUps =
+                      isLastAssistant && !isStreaming && suggestionsPart
+                        ? suggestionsPart.data.questions
+                        : [];
 
                     return (
                       <MessageScrollerItem
@@ -264,7 +277,6 @@ export default function ResumeChat() {
                                     part.type === "text" ? (
                                       <div key={j} className="copy-13 text-gray-1000">
                                         <Streamdown
-                                          plugins={{ code }}
                                           caret="block"
                                           isAnimating={isThisStreaming}
                                           linkSafety={{ enabled: false }}
@@ -274,6 +286,26 @@ export default function ResumeChat() {
                                         </Streamdown>
                                       </div>
                                     ) : null
+                                  )}
+
+                                  {/* Follow-up suggestion chips (last answer only) */}
+                                  {followUps.length > 0 && (
+                                    <div className="flex flex-col gap-1.5 mt-1 animate-fadeIn">
+                                      {followUps.map((question) => (
+                                        <button
+                                          key={question}
+                                          onClick={() => handleFollowUp(question)}
+                                          disabled={status !== "ready"}
+                                          className="geist-focus flex items-center gap-1.5 text-left px-2.5 py-1.5 rounded-[8px] border border-gray-300 hover:border-gray-500 bg-background-100 hover:bg-gray-100 transition-all copy-13 text-gray-900 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed group w-fit"
+                                        >
+                                          <ChevronRight
+                                            size={12}
+                                            className="text-gray-600 flex-shrink-0 group-hover:text-gray-1000 transition-colors"
+                                          />
+                                          {question}
+                                        </button>
+                                      ))}
+                                    </div>
                                   )}
                                 </BubbleContent>
                               </Bubble>

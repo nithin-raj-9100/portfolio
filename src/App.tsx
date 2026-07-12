@@ -1,7 +1,6 @@
-import { useState, useMemo, useEffect, useRef, useLayoutEffect } from "react";
+import { lazy, Suspense, useState, useMemo, useEffect, useRef, useLayoutEffect } from "react";
 import { flushSync } from "react-dom";
 import { usePostHog } from "@posthog/react";
-import ResumeChat from "./components/ResumeChat";
 import SpotlightCard from "./components/SpotlightCard";
 import { 
   Mail,
@@ -90,6 +89,8 @@ interface Project {
 }
 
 type Theme = "light" | "dark" | "system";
+
+const ResumeChat = lazy(() => import("./components/ResumeChat"));
 
 // Corrected Data Sets from main.tex
 const jobsData: Job[] = [
@@ -1531,7 +1532,9 @@ function App() {
       )}
 
       {/* Floating resume chat widget */}
-      <ResumeChat />
+      <Suspense fallback={null}>
+        <ResumeChat />
+      </Suspense>
 
     </div>
   );
