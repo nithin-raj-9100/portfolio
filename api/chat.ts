@@ -89,12 +89,12 @@ Rules you must follow:
 
 ${RESUME_CONTEXT}`;
 
-const SUGGESTIONS_PROMPT = `You generate follow-up questions for a recruiter chatting with an AI assistant about Nithin Raj's resume. Given the conversation so far, propose exactly 3 short follow-up questions the recruiter is likely to ask next.
+const SUGGESTIONS_PROMPT = `You generate follow-up questions for a recruiter chatting with an AI assistant about Nithin Raj's resume. Given the recruiter's questions so far, predict exactly 3 short follow-up questions they are likely to ask next.
 
 Rules:
 1. Every question must be answerable from the resume context below — never suggest questions the resume cannot answer.
 2. Keep each question under 60 characters, phrased from the recruiter's point of view (e.g. "What did he build at Wednesday Solutions?").
-3. Do not repeat questions already asked in the conversation.
+3. Do not repeat questions the recruiter has already asked.
 4. Respond with ONLY a JSON array of 3 strings. No markdown, no code fences, no commentary.
 
 ${RESUME_CONTEXT}`;
@@ -157,20 +157,20 @@ export default async function handler(request: Request): Promise<Response> {
 
       writer.merge(result.toUIMessageStream({ sendReasoning: true }));
 
-      // After the answer finishes, generate follow-up suggestion chips.
+      // Generate follow-up chips in parallel with the answer — they are
+      // predicted from the recruiter's questions alone, so they don't need
+      // to wait for the answer text and are ready when streaming ends.
       // Best-effort: a failure here must never break the main answer.
       try {
-        const answer = await result.text;
-        const lastUserMessage = messages
+        const userQuestions = messages
           .filter((m) => m.role === 'user')
-          .at(-1)
-          ?.parts?.map((p) => (p.type === 'text' ? p.text : ''))
-          .join(' ') ?? '';
+          .map((m) => m.parts?.map((p) => (p.type === 'text' ? p.text : '')).join(' ').trim())
+          .filter(Boolean);
 
         const { text } = await generateText({
           model: google('gemma-4-31b-it'),
           system: SUGGESTIONS_PROMPT,
-          prompt: `Recruiter asked: "${lastUserMessage}"\n\nAssistant answered:\n${answer}\n\nJSON array of 3 follow-up questions:`,
+          prompt: `Recruiter's questions so far:\n${userQuestions.map((q) => `- ${q}`).join('\n')}\n\nJSON array of 3 follow-up questions:`,
           // Gemma spends ~200-300 output tokens on reasoning before emitting
           // text and can't disable thinking, so the cap must cover both.
           maxOutputTokens: 800,
