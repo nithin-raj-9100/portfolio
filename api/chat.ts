@@ -167,13 +167,14 @@ export default async function handler(request: Request): Promise<Response> {
           .map((m) => m.parts?.map((p) => (p.type === 'text' ? p.text : '')).join(' ').trim())
           .filter(Boolean);
 
+        // Flash-lite instead of Gemma: ~1s vs ~15-30s, and it supports
+        // disabling thinking so no reasoning tokens eat into the cap.
         const { text } = await generateText({
-          model: google('gemma-4-31b-it'),
+          model: google('gemini-3.1-flash-lite'),
           system: SUGGESTIONS_PROMPT,
           prompt: `Recruiter's questions so far:\n${userQuestions.map((q) => `- ${q}`).join('\n')}\n\nJSON array of 3 follow-up questions:`,
-          // Gemma spends ~200-300 output tokens on reasoning before emitting
-          // text and can't disable thinking, so the cap must cover both.
-          maxOutputTokens: 800,
+          maxOutputTokens: 200,
+          providerOptions: { google: { thinkingConfig: { thinkingBudget: 0 } } },
         });
 
         const questions = parseSuggestions(text);
