@@ -152,9 +152,9 @@ export default async function handler(request: Request): Promise<Response> {
         model: google('gemini-3.1-flash-lite'),
         system: SYSTEM_PROMPT,
         messages: modelMessages,
-        maxOutputTokens: 2048,
+        maxOutputTokens: 4096,
         providerOptions: {
-          google: { thinkingConfig: { thinkingLevel: 'low', includeThoughts: true } },
+          google: { thinkingConfig: { thinkingLevel: 'high', includeThoughts: true } },
         },
       });
 
