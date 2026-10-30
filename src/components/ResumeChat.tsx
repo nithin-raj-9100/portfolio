@@ -23,6 +23,14 @@ const SUGGESTED_PROMPTS = [
   "Tell me about CartVerse",
 ];
 
+function getReasoningMarkdown(parts: ResumeUIMessage["parts"]): string {
+  return parts
+    .filter((p): p is Extract<typeof p, { type: "reasoning" }> => p.type === "reasoning")
+    .map((p) => p.text)
+    .join("\n\n")
+    .replace(/^[ \t]*\*\*([^*\n]+)\*\*[ \t]*$/gm, "#### $1");
+}
+
 export default function ResumeChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -51,13 +59,10 @@ export default function ResumeChat() {
     }
   }, [status]);
 
-  const lastReasoningText = messages.reduce<string>((acc, m) => {
-    if (m.role !== "assistant") return acc;
-    const part = m.parts?.find((p) => p.type === "reasoning") as
-      | { type: "reasoning"; text: string }
-      | undefined;
-    return part?.text ?? acc;
-  }, "");
+  const lastReasoningText = messages.reduce<string>(
+    (acc, m) => (m.role === "assistant" ? getReasoningMarkdown(m.parts ?? []) || acc : acc),
+    ""
+  );
 
   useEffect(() => {
     if (reasoningOpen && reasoningScrollRef.current) {
@@ -205,10 +210,8 @@ export default function ResumeChat() {
                   {messages.map((message, i) => {
                     const isUser = message.role === "user";
                     const isLastAssistant = i === lastAssistantIdx;
-                    const reasoningPart = message.parts.find((p) => p.type === "reasoning") as
-                      | { type: "reasoning"; text: string }
-                      | undefined;
-                    const hasReasoning = !!reasoningPart?.text;
+                    const reasoningText = isUser ? "" : getReasoningMarkdown(message.parts);
+                    const hasReasoning = reasoningText.trim().length > 0;
                     const isThisStreaming = isStreaming && isLastAssistant;
                     const suggestionsPart = message.parts.find(
                       (p) => p.type === "data-suggestions"
@@ -260,13 +263,15 @@ export default function ResumeChat() {
                                         )}
                                       </button>
                                       {reasoningOpen && (
-                                        <div ref={reasoningScrollRef} className="px-3 py-2 bg-gray-alpha-100 max-h-[180px] overflow-y-auto reasoning-scrollbar">
-                                          <p className="copy-13 text-gray-600 whitespace-pre-wrap break-words leading-relaxed">
-                                            {reasoningPart.text}
-                                            {isThisStreaming && !lastAssistantHasText && (
-                                              <span className="inline-block w-1.5 h-3 bg-gray-400 ml-0.5 align-middle animate-pulse" />
-                                            )}
-                                          </p>
+                                        <div ref={reasoningScrollRef} className="px-3 py-2 bg-gray-alpha-100 max-h-[220px] overflow-y-auto reasoning-scrollbar">
+                                          <Streamdown
+                                            caret="block"
+                                            isAnimating={isThisStreaming && !lastAssistantHasText}
+                                            linkSafety={{ enabled: false }}
+                                            className="copy-13 text-gray-700 break-words leading-relaxed [&_p]:my-1.5 [&_h4]:mt-3 [&_h4]:mb-1 [&_h4:first-child]:mt-0 [&_h4]:text-[13px] [&_h4]:font-semibold [&_h4]:text-gray-1000"
+                                          >
+                                            {reasoningText}
+                                          </Streamdown>
                                         </div>
                                       )}
                                     </div>
