@@ -149,10 +149,13 @@ export default async function handler(request: Request): Promise<Response> {
   const stream = createUIMessageStream<ResumeUIMessage>({
     execute: async ({ writer }) => {
       const result = streamText({
-        model: google('gemma-4-31b-it'),
+        model: google('gemini-3.1-flash-lite'),
         system: SYSTEM_PROMPT,
         messages: modelMessages,
-        maxOutputTokens: 1024,
+        maxOutputTokens: 2048,
+        providerOptions: {
+          google: { thinkingConfig: { thinkingLevel: 'low', includeThoughts: true } },
+        },
       });
 
       writer.merge(result.toUIMessageStream({ sendReasoning: true }));
